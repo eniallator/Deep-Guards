@@ -1,3 +1,5 @@
+export type ObjectKey = string | number | symbol;
+
 export type Guard<T> = (value: unknown) => value is T;
 
 export type OptionalGuard<T> = Guard<T | undefined> & {
@@ -5,7 +7,7 @@ export type OptionalGuard<T> = Guard<T | undefined> & {
 };
 
 export type Schema = {
-  [S in string | number | symbol]: Guard<unknown> | OptionalGuard<unknown>;
+  [S in ObjectKey]: Guard<unknown> | OptionalGuard<unknown>;
 };
 
 export type OptionalGuardKeys<S extends Schema> = {

@@ -13,6 +13,8 @@ export const isInteger: Guard<number> = (value): value is number =>
 
 export const isString: Guard<string> = (value) => typeof value === "string";
 
+export const isSymbol: Guard<Symbol> = (value) => typeof value === "symbol";
+
 export const isBoolean: Guard<boolean> = (value) =>
   value === true || value === false;
 

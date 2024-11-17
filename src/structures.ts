@@ -1,26 +1,48 @@
-import { Guard, OptionalGuard, OptionalGuardKeys, Schema } from "./types.js";
+import {
+  Guard,
+  ObjectKey,
+  OptionalGuard,
+  OptionalGuardKeys,
+  Schema,
+} from "./types.js";
+
+function objectKeys<K extends ObjectKey>(obj: Record<K, unknown>): K[] {
+  return (Object.getOwnPropertyNames(obj) as K[]).concat(
+    Object.getOwnPropertySymbols(obj) as K[]
+  );
+}
 
 export const isAnyFunction: Guard<() => unknown> = (
   value
 ): value is (...args: unknown[]) => unknown => typeof value === "function";
 
-export const isAnyRecord: Guard<Record<string | number | symbol, unknown>> = (
+export const isAnyArray: Guard<unknown[]> = (value) => Array.isArray(value);
+
+export const isAnyRecord: Guard<Record<ObjectKey, unknown>> = (
   value
-): value is Record<string, unknown> =>
+): value is Record<ObjectKey, unknown> =>
   value != null && typeof value === "object" && !Array.isArray(value);
 
 export function isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
   return (value): value is T[] => Array.isArray(value) && value.every(guard);
 }
-
-export function isRecordOf<K extends string | number | symbol, V>(
+export function isRecordOf<K extends ObjectKey>(
+  keyGuard: Guard<K>
+): Guard<Record<K, unknown>>;
+export function isRecordOf<K extends ObjectKey, V>(
   keyGuard: Guard<K>,
   valueGuard: Guard<V>
+): Guard<Record<K, V>>;
+export function isRecordOf<K extends ObjectKey, V>(
+  keyGuard: Guard<K>,
+  valueGuard?: Guard<V>
 ): Guard<Record<K, V>> {
   return (value): value is Record<K, V> =>
-    isAnyRecord(value) &&
-    Object.entries(value).every(
-      ([key, value]) => keyGuard(key) && valueGuard(value)
+    value != null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    objectKeys(value).every(
+      (key) => keyGuard(key) && (valueGuard?.(value[key]) ?? true)
     );
 }
 
@@ -58,8 +80,7 @@ export function isObjectOf<S extends Schema>(
 > {
   return ((value) =>
     isAnyRecord(value) &&
-    Object.entries(schema).every(
-      ([key, valueGuard]) =>
-        key in value && (!isAnyFunction(valueGuard) || valueGuard(value[key]))
+    objectKeys(schema).every(
+      (key) => key in value && schema[key]!(value[key])
     )) as ReturnType<typeof isObjectOf<S>>;
 }

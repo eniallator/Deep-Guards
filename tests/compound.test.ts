@@ -11,12 +11,12 @@ import { isNumber, isString } from "../src/primitives";
 describe("isOptional", () => {
   const guard = isOptional(isString);
 
-  it("should succeed for the expected type or undefined", () => {
+  it("succeeds for the expected type or undefined", () => {
     expect(guard("foo")).toBe(true);
     expect(guard(undefined)).toBe(true);
   });
 
-  it("should fail for any other value", () => {
+  it("fails for any other value", () => {
     expect(guard(null)).toBe(false);
   });
 });
@@ -24,13 +24,13 @@ describe("isOptional", () => {
 describe("isNullable", () => {
   const guard = isNullable(isString);
 
-  it("should succeed for the expected type, null, or undefined", () => {
+  it("succeeds for the expected type, null, or undefined", () => {
     expect(guard("foo")).toBe(true);
     expect(guard(null)).toBe(true);
     expect(guard(undefined)).toBe(true);
   });
 
-  it("should fail any other value", () => {
+  it("fails any other value", () => {
     expect(guard(1)).toBe(false);
   });
 });
@@ -38,11 +38,11 @@ describe("isNullable", () => {
 describe("isNot", () => {
   const guard = isNot(isString);
 
-  it("should succeed for any other value", () => {
+  it("succeeds for any other value", () => {
     expect(guard(1)).toBe(true);
   });
 
-  it("should fail for the isNot type", () => {
+  it("fails for the isNot type", () => {
     expect(guard("foo")).toBe(false);
   });
 });
@@ -50,28 +50,28 @@ describe("isNot", () => {
 describe("isOneOf", () => {
   const guard = isOneOf(1, "foo", true);
 
-  it("should succeed for all of the values", () => {
+  it("succeeds for all of the values", () => {
     expect(guard(1)).toBe(true);
     expect(guard("foo")).toBe(true);
     expect(guard(true)).toBe(true);
   });
 
   expect(guard(2)).toBe(false);
-  it("should fail any other value", () => {
+  it("fails any other value", () => {
+    expect(guard(null)).toBe(false);
     expect(guard("bar")).toBe(false);
     expect(guard(false)).toBe(false);
-    expect(guard(null)).toBe(false);
   });
 });
 
 describe("isUnionOf", () => {
   const guard = isUnionOf(isString, isNumber);
-  it("should succeed for the union types", () => {
+  it("succeeds for the union types", () => {
     expect(guard(1)).toBe(true);
     expect(guard("foo")).toBe(true);
   });
 
-  it("should fail for any other type", () => {
+  it("fails for any other type", () => {
     expect(guard(true)).toBe(false);
     expect(guard(null)).toBe(false);
   });
@@ -84,13 +84,13 @@ describe("isExact", () => {
       true
     );
 
-    it("should succeed for the exact value", () => {
+    it("succeeds for the exact value", () => {
       expect(guard({ foo: "bar", hello: ["world", { key: "test" }] })).toBe(
         true
       );
     });
 
-    it("should fail for any other value", () => {
+    it("fails for any other value", () => {
       expect(guard({ foo: "baz", hello: ["world", { key: "test" }] })).toBe(
         false
       );
@@ -104,16 +104,16 @@ describe("isExact", () => {
   describe("shallow", () => {
     const guard = isExact("foo", false);
 
-    it("should succeed for the exact value", () => {
+    it("succeeds for the exact value", () => {
       expect(guard("foo")).toBe(true);
     });
 
-    it("should fail for deep equality", () => {
+    it("fails for deep equality", () => {
       const guard = isExact(["foo", "bar", "baz", 1, 2, 3], false);
       expect(guard(["foo", "bar", "baz", 1, 2, 3])).toBe(false);
     });
 
-    it("should fail for any other value", () => {
+    it("fails for any other value", () => {
       expect(guard("bar")).toBe(false);
       expect(guard(1)).toBe(false);
     });
