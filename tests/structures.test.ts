@@ -1,7 +1,6 @@
 import { isNumber, isString, isSymbol } from "../src/primitives";
 import {
   isAnyArray,
-  isAnyFunction,
   isAnyRecord,
   isArrayOf,
   isObjectOf,
@@ -17,16 +16,6 @@ describe("isAnyArray", () => {
   it("fails for any other value", () => {
     expect(isAnyArray({})).toBe(false);
     expect(isAnyArray(1)).toBe(false);
-  });
-});
-
-describe("isAnyFunction", () => {
-  it("succeeds for a function", () => {
-    expect(isAnyFunction(() => {})).toBe(true);
-  });
-
-  it("fails for any other value", () => {
-    expect(isAnyFunction(1)).toBe(false);
   });
 });
 

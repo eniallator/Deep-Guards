@@ -1,5 +1,6 @@
 import {
   isBoolean,
+  isFunction,
   isInteger,
   isNull,
   isNumber,
@@ -11,6 +12,16 @@ import {
 describe("isUnknown", () => {
   it("succeeds for any value", () => {
     expect(isUnknown("unknown")).toBe(true);
+  });
+});
+
+describe("isAnyFunction", () => {
+  it("succeeds for a function", () => {
+    expect(isFunction(() => {})).toBe(true);
+  });
+
+  it("fails for any other value", () => {
+    expect(isFunction(1)).toBe(false);
   });
 });
 

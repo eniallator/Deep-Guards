@@ -2,6 +2,7 @@ import {
   isExact,
   isNot,
   isNullable,
+  isNonNullable,
   isOneOf,
   isOptional,
   isUnionOf,
@@ -32,6 +33,20 @@ describe("isNullable", () => {
 
   it("fails any other value", () => {
     expect(guard(1)).toBe(false);
+  });
+});
+
+describe("isNonNullable", () => {
+  const guard = isNonNullable;
+
+  it("succeeds for the expected type, null, or undefined", () => {
+    expect(guard("foo")).toBe(true);
+    expect(guard(1)).toBe(true);
+  });
+
+  it("fails any other value", () => {
+    expect(guard(null)).toBe(false);
+    expect(guard(undefined)).toBe(false);
   });
 });
 

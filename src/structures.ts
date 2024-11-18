@@ -12,10 +12,6 @@ function objectKeys<K extends ObjectKey>(obj: Record<K, unknown>): K[] {
   );
 }
 
-export const isAnyFunction: Guard<() => unknown> = (
-  value
-): value is (...args: unknown[]) => unknown => typeof value === "function";
-
 export const isAnyArray: Guard<unknown[]> = (value) => Array.isArray(value);
 
 export const isAnyRecord: Guard<Record<ObjectKey, unknown>> = (
@@ -78,9 +74,13 @@ export function isObjectOf<S extends Schema>(
           : never;
       }
 > {
+  if (objectKeys(schema).length === 0) {
+    throw new Error("isObjectOf received an empty schema!");
+  }
+
   return ((value) =>
     isAnyRecord(value) &&
     objectKeys(schema).every(
-      (key) => key in value && schema[key]!(value[key])
+      (key) => key in value && (schema[key] as Guard<unknown>)(value[key])
     )) as ReturnType<typeof isObjectOf<S>>;
 }

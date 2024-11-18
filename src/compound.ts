@@ -8,6 +8,10 @@ export function isNullable<T>(guard: Guard<T>): Guard<T | null | undefined> {
     value == null || guard(value);
 }
 
+export function isNonNullable<T>(value: T | null | undefined): value is T {
+  return value != null;
+}
+
 export function isNot<const N>(guard: Guard<N>) {
   return <const T>(value: T | N): value is T => !guard(value);
 }
