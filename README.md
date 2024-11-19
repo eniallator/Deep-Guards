@@ -32,12 +32,12 @@ const vehicleGuard = isUnionOf(carGuard, bikeGuard);
 const value: unknown = { ... };
 
 if (vehicleGuard(value)) {
-  value.wheels;
+  console.log(value.wheels);
 
   if (value.type === "car") {
     // value is a Car
   } else {
-    // value is a bike
+    // value is a Bike
   }
 }
 ```
@@ -59,6 +59,7 @@ if (vehicleGuard(value)) {
    3. [isArrayOf](#isarrayof)
    4. [isRecordOf](#isrecordof)
    5. [isObjectOf](#isobjectof)
+4. [guardOrThrow](#guardorthrow)
 
 ## Terminology
 
@@ -165,3 +166,17 @@ As seen in the example at the start of this readme, you can do all sorts of comp
 
 NOTE: This throws an error if you give it an empty object.\
 It will also accept an object which contains keys which are not specified.
+
+## guardOrThrow
+
+This package also includes a `guardOrThrow` method which when given an incoming value, a guard, and an optional hint message, will return a narrowed version of the value, or throw a `GuardError` containing that hint message.
+
+You can then do things like:
+
+```ts
+const cars = guardOrThrow(
+  JSON.parse(readFileSync("cars.json").toString()),
+  isArrayOf(isCar),
+  "Invalid car format"
+);
+```
