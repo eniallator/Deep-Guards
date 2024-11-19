@@ -60,6 +60,7 @@ if (vehicleGuard(value)) {
    4. [isRecordOf](#isrecordof)
    5. [isObjectOf](#isobjectof)
 4. [guardOrThrow](#guardorthrow)
+5. [TypeFromGuard](#typefromguard)
 
 ## Terminology
 
@@ -179,4 +180,25 @@ const cars = guardOrThrow(
   isArrayOf(isCar),
   "Invalid car format"
 );
+```
+
+## TypeFromGuard
+
+This is a helper type, which will extract the type from a guard function to then let you use the type for other purposes.
+
+An example use case for this is:
+
+```ts
+const carGuard = isObjectOf({
+  type: isExact("car"),
+  wheels: isExact(4),
+  owner: isString,
+  passengers: isArrayOf(
+    isObjectOf({
+      name: isString,
+    })
+  ),
+});
+
+type Car = TypeFromGuard<typeof carGuard>;
 ```
