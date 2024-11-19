@@ -95,8 +95,6 @@ There's also compound guards, which do more complex checks than the primitives:
 
 Higher order guard. This lets the incoming value to also be equal to `undefined` as well.
 
-The later described [isObjectOf](#isobjectof) has a special case for `isOptional` as well.
-
 ### isNullable
 
 Higher order guard. This lets the incoming value to also be equal to `null` or `undefined` as well.
@@ -164,26 +162,6 @@ NOTE: This passes for empty records
 This is a function which takes in a structured object, containing keys of type `string | number | symbol`, and then values which are guard functions.
 
 As seen in the example at the start of this readme, you can do all sorts of complex nesting, as this produces a guard in the end.
-
-`isOptional` case: when a value in the structured guard object is: `isOptional(...)`, the key will become optional.\
-E.g.
-
-```ts
-const guard = isObjectOf({
-  foo: isString,
-  bar: isOptional(isString),
-});
-
-// guard will have type:
-
-Guard<
-  {
-    foo: string;
-  } & {
-    bar?: string | undefined;
-  }
->;
-```
 
 NOTE: This throws an error if you give it an empty object.\
 It will also accept an object which contains keys which are not specified.
