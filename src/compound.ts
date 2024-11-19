@@ -1,9 +1,24 @@
-import { Guard, OptionalGuard } from "./types.js";
+import { Guard, GuardSchemaOf } from "./types.js";
 
-export const isOptional = <T>(guard: Guard<T>): OptionalGuard<T> =>
-  ((value) => value === undefined || guard(value)) as OptionalGuard<T>;
+export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
+  if (typeof guard !== "function") {
+    throw new TypeError(
+      `isOptional expects a guard parameter. Got instead: ${guard}`
+    );
+  }
+
+  return ((value) => value === undefined || guard(value)) as Guard<
+    T | undefined
+  >;
+}
 
 export function isNullable<T>(guard: Guard<T>): Guard<T | null | undefined> {
+  if (typeof guard !== "function") {
+    throw new TypeError(
+      `isNullable expects a guard parameter. Got instead: ${guard}`
+    );
+  }
+
   return (value: unknown): value is T | null | undefined =>
     value == null || guard(value);
 }
@@ -13,6 +28,12 @@ export function isNonNullable<T>(value: T | null | undefined): value is T {
 }
 
 export function isNot<const N>(guard: Guard<N>) {
+  if (typeof guard !== "function") {
+    throw new TypeError(
+      `isNot expects a guard parameter. Got instead: ${guard}`
+    );
+  }
+
   return <const T>(value: T | N): value is T => !guard(value);
 }
 
@@ -24,14 +45,19 @@ export function isOneOf<
     valueSet.has(value as T[number]);
 }
 
-export function isUnionOf<G extends Guard<unknown>[]>(
-  ...guards: G
-): Guard<G extends Guard<infer T>[] ? T : never> {
-  return (value): value is G extends Guard<infer T>[] ? T : never =>
-    guards.some((guard) => guard(value));
+export function isUnionOf<T extends readonly unknown[]>(
+  ...guards: GuardSchemaOf<T>
+): Guard<T[number]> {
+  if (guards.every((guard) => typeof guard !== "function")) {
+    throw new TypeError(
+      `isUnionOf expects N guard parameters. Got instead: ${guards}`
+    );
+  }
+
+  return (value): value is T => guards.some((guard) => guard(value));
 }
 
-function isEqual<T>(a: T, b: T): boolean {
+function isEqual<T>(a: T, b: unknown): b is T {
   return (
     a === b ||
     (a != null &&
@@ -51,5 +77,5 @@ function isEqual<T>(a: T, b: T): boolean {
 
 export function isExact<const T>(expected: T, deep: boolean = true): Guard<T> {
   return (value): value is T =>
-    deep ? isEqual(value, expected) : value === expected;
+    deep ? isEqual(expected, value) : expected === value;
 }

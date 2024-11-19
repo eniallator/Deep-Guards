@@ -1,10 +1,6 @@
-import {
-  Guard,
-  ObjectKey,
-  OptionalGuard,
-  OptionalGuardKeys,
-  Schema,
-} from "./types.js";
+import { Guard, GuardSchemaOf } from "./types.js";
+
+type ObjectKey = string | number | symbol;
 
 function objectKeys<K extends ObjectKey>(obj: Record<K, unknown>): K[] {
   return (Object.getOwnPropertyNames(obj) as K[]).concat(
@@ -20,8 +16,15 @@ export const isAnyRecord: Guard<Record<ObjectKey, unknown>> = (
   value != null && typeof value === "object" && !Array.isArray(value);
 
 export function isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
+  if (typeof guard !== "function") {
+    throw new TypeError(
+      `isArrayOf expects a guard parameter. Got instead: ${guard}`
+    );
+  }
+
   return (value): value is T[] => Array.isArray(value) && value.every(guard);
 }
+
 export function isRecordOf<K extends ObjectKey>(
   keyGuard: Guard<K>
 ): Guard<Record<K, unknown>>;
@@ -33,6 +36,16 @@ export function isRecordOf<K extends ObjectKey, V>(
   keyGuard: Guard<K>,
   valueGuard?: Guard<V>
 ): Guard<Record<K, V>> {
+  if (typeof keyGuard !== "function") {
+    throw new TypeError(
+      `isRecordOf keyGuard expects a guard parameter. Got instead: ${keyGuard}`
+    );
+  } else if (valueGuard != null && typeof valueGuard !== "function") {
+    throw new TypeError(
+      `isRecordOf valueGuard expects an optional guard parameter. Got instead: ${valueGuard}`
+    );
+  }
+
   return (value): value is Record<K, V> =>
     value != null &&
     typeof value === "object" &&
@@ -42,45 +55,29 @@ export function isRecordOf<K extends ObjectKey, V>(
     );
 }
 
-// Not extracting into a type so tooltips show the resultant object, not the guards/intermediary types
-export function isObjectOf<S extends Schema>(
-  schema: S
-): Guard<
-  Exclude<keyof S, OptionalGuardKeys<S>> extends never
-    ? OptionalGuardKeys<S> extends never
-      ? object
-      : {
-          [K in OptionalGuardKeys<S>]?: S[K] extends OptionalGuard<infer T>
-            ? T
-            : never;
-        }
-    : OptionalGuardKeys<S> extends never
-    ? {
-        [K in Exclude<keyof S, OptionalGuardKeys<S>>]: S[K] extends Guard<
-          infer T
-        >
-          ? T
-          : never;
-      }
-    : {
-        [K in Exclude<keyof S, OptionalGuardKeys<S>>]: S[K] extends Guard<
-          infer T
-        >
-          ? T
-          : never;
-      } & {
-        [K in OptionalGuardKeys<S>]?: S[K] extends OptionalGuard<infer T>
-          ? T
-          : never;
-      }
-> {
-  if (objectKeys(schema).length === 0) {
-    throw new Error("isObjectOf received an empty schema!");
+export function isObjectOf<O extends object>(
+  schema: GuardSchemaOf<O>
+): O extends unknown[] ? never : Guard<O> {
+  const schemaKeys = objectKeys(schema);
+  const schemaUnknown = schema as unknown;
+  if (schemaKeys.length === 0) {
+    throw new Error("isObjectOf received an empty schema");
+  } else if (
+    schemaUnknown == null ||
+    typeof schemaUnknown !== "object" ||
+    Array.isArray(schemaUnknown) ||
+    schemaKeys.some((key) => typeof (schemaUnknown as O)[key] !== "function")
+  ) {
+    throw new TypeError(
+      `isObjectOf expects a guard schema. Got instead: ${schemaUnknown}`
+    );
   }
 
-  return ((value) =>
-    isAnyRecord(value) &&
-    objectKeys(schema).every(
-      (key) => key in value && (schema[key] as Guard<unknown>)(value[key])
-    )) as ReturnType<typeof isObjectOf<S>>;
+  return ((value): value is O =>
+    value != null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    schemaKeys.every(
+      (key) => key in value && schema[key]((value as O)[key])
+    )) as O extends unknown[] ? never : Guard<O>;
 }
