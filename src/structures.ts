@@ -60,9 +60,7 @@ export function isObjectOf<O extends object>(
 ): O extends unknown[] ? never : Guard<O> {
   const schemaKeys = objectKeys(schema);
   const schemaUnknown = schema as unknown;
-  if (schemaKeys.length === 0) {
-    throw new Error("isObjectOf received an empty schema");
-  } else if (
+  if (
     schemaUnknown == null ||
     typeof schemaUnknown !== "object" ||
     Array.isArray(schemaUnknown) ||
@@ -71,6 +69,8 @@ export function isObjectOf<O extends object>(
     throw new TypeError(
       `isObjectOf expects a guard schema. Got instead: ${schemaUnknown}`
     );
+  } else if (schemaKeys.length === 0) {
+    throw new Error("isObjectOf received an empty schema");
   }
 
   return ((value): value is O =>

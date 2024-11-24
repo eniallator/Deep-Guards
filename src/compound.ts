@@ -57,6 +57,26 @@ export function isUnionOf<T extends readonly unknown[]>(
   return (value): value is T => guards.some((guard) => guard(value));
 }
 
+type ArrayToIntersection<A extends readonly unknown[]> = A extends [
+  infer T,
+  ...infer R
+]
+  ? T & ArrayToIntersection<R>
+  : unknown;
+
+export function isIntersectionOf<T extends readonly unknown[]>(
+  ...guards: GuardSchemaOf<T>
+): Guard<ArrayToIntersection<T>> {
+  if (guards.every((guard) => typeof guard !== "function")) {
+    throw new TypeError(
+      `isIntersectionOf expects N guard parameters. Got instead: ${guards}`
+    );
+  }
+
+  return (value): value is ArrayToIntersection<T> =>
+    guards.every((guard) => guard(value));
+}
+
 function isEqual<T>(a: T, b: unknown): b is T {
   return (
     a === b ||

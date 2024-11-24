@@ -6,6 +6,7 @@ import {
   isOneOf,
   isOptional,
   isUnionOf,
+  isIntersectionOf,
 } from "../src/compound";
 import { isNumber, isString } from "../src/primitives";
 
@@ -37,16 +38,14 @@ describe("isNullable", () => {
 });
 
 describe("isNonNullable", () => {
-  const guard = isNonNullable;
-
   it("succeeds for the expected type, null, or undefined", () => {
-    expect(guard("foo")).toBe(true);
-    expect(guard(1)).toBe(true);
+    expect(isNonNullable("foo")).toBe(true);
+    expect(isNonNullable(1)).toBe(true);
   });
 
   it("fails any other value", () => {
-    expect(guard(null)).toBe(false);
-    expect(guard(undefined)).toBe(false);
+    expect(isNonNullable(null)).toBe(false);
+    expect(isNonNullable(undefined)).toBe(false);
   });
 });
 
@@ -89,6 +88,22 @@ describe("isUnionOf", () => {
   it("fails for any other type", () => {
     expect(guard(true)).toBe(false);
     expect(guard(null)).toBe(false);
+  });
+});
+
+describe("isIntersectionOf", () => {
+  const guard = isIntersectionOf(
+    isOneOf("foo", "bar", "baz"),
+    isExact("foo", false)
+  );
+
+  it("succeeds for the intersection", () => {
+    expect(guard("foo")).toBe(true);
+  });
+
+  it("fails for any other type", () => {
+    expect(guard("bar")).toBe(false);
+    expect(guard(1)).toBe(false);
   });
 });
 

@@ -52,15 +52,18 @@ if (vehicleGuard(value)) {
    4. [isNot](#isnot)
    5. [isOneOf](#isoneof)
    6. [isUnionOf](#isunionof)
-   7. [isExact](#isexact)
+   7. [isIntersectionOf](#isintersectionof)
+   8. [isExact](#isexact)
 3. [Structures](#structures)
    1. [isAnyArray](#isanyarray)
    2. [isAnyRecord](#isanyrecord)
    3. [isArrayOf](#isarrayof)
    4. [isRecordOf](#isrecordof)
    5. [isObjectOf](#isobjectof)
-4. [guardOrThrow](#guardorthrow)
-5. [TypeFromGuard](#typefromguard)
+4. [Macros](#macros)
+   1. [isDiscriminatedObjectOf](#isdiscriminatedobjectof)
+5. [guardOrThrow](#guardorthrow)
+6. [TypeFromGuard](#typefromguard)
 
 ## Terminology
 
@@ -123,7 +126,11 @@ It's very useful for enumerations, where you only have a few specific values, e.
 
 ### isUnionOf
 
-Higher order guard. This takes in any amount of guards as arguments, and then produces a guard which does a union over all the incoming guards.
+Higher order guard. This takes in any amount of guards as arguments, and then produces a guard which does a union over all the incoming guards. This means that if _any_ one of the guards passes for the incoming value, then this will pass.
+
+### isIntersectionOf
+
+Higher order guard. This takes in any amount of guards as arguments, and then produces a guard which does an intersection over all the incoming guards. This means that if _every_ one of the guards passes for the incoming value, then this will pass.
 
 ### isExact
 
@@ -167,6 +174,56 @@ As seen in the example at the start of this readme, you can do all sorts of comp
 
 NOTE: This throws an error if you give it an empty object.\
 It will also accept an object which contains keys which are not specified.
+
+## Macros
+
+These are common use cases for guarding setups, where they are made entirely out of the above guard suite.
+
+### isDiscriminatedObjectOf
+
+This takes in a string literal `type`, and an `isObjectOf` guard. This then combines the two, where the returned guard has the signature: `Guard<{ type: T } & O>`.
+This is good for use cases where you don't have a discriminator on an individual type, but then do have it on the union type. For example:
+
+```ts
+interface Car {
+  wheels: 4;
+  owner: string;
+  passengers: {
+    name: string;
+  }[];
+}
+
+interface Bike {
+  wheels: 2;
+  owner: string;
+  storage?: string[];
+}
+
+type Vehicle = ({ type: "car" } & Car) | ({ type: "bike" } & Bike);
+
+// Can then be represented like so in guards:
+
+const carGuard = isObjectOf({
+  wheels: isExact(4),
+  owner: isString,
+  passengers: isArrayOf(
+    isObjectOf({
+      name: isString,
+    })
+  ),
+});
+
+const bikeGuard = isObjectOf({
+  wheels: isExact(2),
+  owner: isString,
+  storage: isOptional(isArrayOf(isString)),
+});
+
+const vehicleGuard = isUnionOf(
+  isDiscriminatedObjectOf("car", carGuard),
+  isDiscriminatedObjectOf("bike", bikeGuard)
+);
+```
 
 ## guardOrThrow
 
