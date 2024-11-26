@@ -1,14 +1,15 @@
 import {
   isExact,
+  isIntersectionOf,
+  isNonNullable,
   isNot,
   isNullable,
-  isNonNullable,
+  isNumber,
   isOneOf,
   isOptional,
+  isString,
   isUnionOf,
-  isIntersectionOf,
-} from "../src/compound";
-import { isNumber, isString } from "../src/primitives";
+} from "../src";
 
 describe("isOptional", () => {
   const guard = isOptional(isString);

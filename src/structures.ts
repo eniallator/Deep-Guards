@@ -1,4 +1,4 @@
-import { Guard, GuardSchemaOf } from "./types.js";
+import { Guard, GuardSchemaOf } from "./types";
 
 type ObjectKey = string | number | symbol;
 

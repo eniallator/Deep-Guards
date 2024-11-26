@@ -1,4 +1,4 @@
-import { Guard, GuardSchemaOf } from "./types.js";
+import { Guard, GuardSchemaOf } from "./types";
 
 export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
   if (typeof guard !== "function") {
@@ -7,9 +7,7 @@ export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
     );
   }
 
-  return ((value) => value === undefined || guard(value)) as Guard<
-    T | undefined
-  >;
+  return (value): value is T | undefined => value === undefined || guard(value);
 }
 
 export function isNullable<T>(guard: Guard<T>): Guard<T | null | undefined> {

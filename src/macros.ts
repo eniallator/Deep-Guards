@@ -6,6 +6,6 @@ export const isDiscriminatedObjectOf = <T extends string, O extends object>(
   type: T,
   guard: Guard<O>
 ): Guard<{ type: T } & O> =>
-  isIntersectionOf(isObjectOf({ type: isExact(type) }), guard) as Guard<
+  isIntersectionOf(isObjectOf({ type: isExact(type) }), guard) satisfies Guard<
     { type: T } & O
   >;

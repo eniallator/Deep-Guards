@@ -7,7 +7,7 @@ import {
   isString,
   isUndefined,
   isUnknown,
-} from "../src/primitives";
+} from "../src";
 
 describe("isUnknown", () => {
   it("succeeds for any value", () => {
