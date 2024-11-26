@@ -1,11 +1,15 @@
-import { isNumber, isString, isSymbol } from "../src/primitives";
 import {
   isAnyArray,
   isAnyRecord,
   isArrayOf,
+  isBoolean,
+  isNumber,
   isObjectOf,
   isRecordOf,
-} from "../src/structures";
+  isString,
+  isSymbol,
+  isTupleOf,
+} from "../src";
 
 describe("isAnyArray", () => {
   it("succeeds for an array", () => {
@@ -42,6 +46,20 @@ describe("isArrayOf", () => {
   it("fails for any other value", () => {
     expect(guard([1, 2, 3])).toBe(false);
     expect(guard(["foo", "bar", null])).toBe(false);
+    expect(guard(1)).toBe(false);
+  });
+});
+
+describe("isTupleOf", () => {
+  const guard = isTupleOf(isNumber, isString, isBoolean);
+
+  it("succeeds for an array of the value", () => {
+    expect(guard([1, "foo", true])).toBe(true);
+  });
+
+  it("fails for any other value", () => {
+    expect(guard([1, "foo", true, null])).toBe(false);
+    expect(guard([1, "foo"])).toBe(false);
     expect(guard(1)).toBe(false);
   });
 });

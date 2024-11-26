@@ -58,8 +58,9 @@ if (vehicleGuard(value)) {
    1. [isAnyArray](#isanyarray)
    2. [isAnyRecord](#isanyrecord)
    3. [isArrayOf](#isarrayof)
-   4. [isRecordOf](#isrecordof)
-   5. [isObjectOf](#isobjectof)
+   4. [isTupleOf](#istupleof)
+   5. [isRecordOf](#isrecordof)
+   6. [isObjectOf](#isobjectof)
 4. [Macros](#macros)
    1. [isDiscriminatedObjectOf](#isdiscriminatedobjectof)
 5. [guardOrThrow](#guardorthrow)
@@ -159,6 +160,21 @@ Simple guard. Passes if the incoming value is an object/record, but **not** if i
 Higher order guard. This will pass if the incoming value is an array which contains elements which are of the type of the passed in guard function.
 
 NOTE: This passes for empty arrays
+
+### isTupleOf
+
+Higher order guard. This takes in any number of guards, and then checks that the incoming value is an array of the same size, with the guards guarding the items in the same order as they appear.
+
+For example:
+
+```ts
+const myTupleGuard = isTupleOf(isNumber, isString, isBoolean);
+const value: unknown = [1, "foo", true];
+
+if (myTupleGuard(value)) {
+  // value passes
+}
+```
 
 ### isRecordOf
 

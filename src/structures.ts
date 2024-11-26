@@ -25,6 +25,23 @@ export function isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
   return (value): value is T[] => Array.isArray(value) && value.every(guard);
 }
 
+export function isTupleOf<T extends readonly unknown[]>(
+  ...tupleGuards: GuardSchemaOf<T>
+): Guard<T> {
+  if (tupleGuards.some((guard) => typeof guard !== "function")) {
+    throw new TypeError(
+      `isTupleOf expects guard parameters. Got instead: ${JSON.stringify(
+        tupleGuards
+      )}`
+    );
+  }
+
+  return (value): value is T =>
+    Array.isArray(value) &&
+    value.length === tupleGuards.length &&
+    tupleGuards.every((guard, i) => guard(value[i]));
+}
+
 export function isRecordOf<K extends ObjectKey>(
   keyGuard: Guard<K>
 ): Guard<Record<K, unknown>>;
@@ -57,17 +74,22 @@ export function isRecordOf<K extends ObjectKey, V>(
 
 export function isObjectOf<O extends object>(
   schema: GuardSchemaOf<O>
-): O extends unknown[] ? never : Guard<O> {
+): O extends unknown[] ? never : {} extends O ? never : Guard<O> {
+  if (schema == null || typeof schema !== "object") {
+    throw new TypeError(
+      `isObjectOf expects a guard schema object. Got instead: ${schema}`
+    );
+  }
+
   const schemaKeys = objectKeys(schema);
-  const schemaUnknown = schema as unknown;
   if (
-    schemaUnknown == null ||
-    typeof schemaUnknown !== "object" ||
-    Array.isArray(schemaUnknown) ||
-    schemaKeys.some((key) => typeof (schemaUnknown as O)[key] !== "function")
+    Array.isArray(schema) ||
+    schemaKeys.some((key) => typeof schema[key] !== "function")
   ) {
     throw new TypeError(
-      `isObjectOf expects a guard schema. Got instead: ${schemaUnknown}`
+      `isObjectOf expects a guard schema object. Got instead ${JSON.stringify(
+        schema
+      )}`
     );
   } else if (schemaKeys.length === 0) {
     throw new Error("isObjectOf received an empty schema");
@@ -79,5 +101,5 @@ export function isObjectOf<O extends object>(
     !Array.isArray(value) &&
     schemaKeys.every(
       (key) => key in value && schema[key]((value as O)[key])
-    )) as O extends unknown[] ? never : Guard<O>;
+    )) as O extends unknown[] ? never : {} extends O ? never : Guard<O>;
 }
