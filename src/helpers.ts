@@ -1,4 +1,4 @@
-import { Guard } from "./types";
+import { Guard } from "./types.js";
 
 export type GuardSchemaOf<O extends object> = {
   [K in keyof O]: Guard<O[K]>;

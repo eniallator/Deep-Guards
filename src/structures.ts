@@ -1,5 +1,5 @@
-import { GuardSchemaOf, ObjectKey, objectKeys } from "./helpers";
-import { Guard } from "./types";
+import { GuardSchemaOf, ObjectKey, objectKeys } from "./helpers.js";
+import { Guard } from "./types.js";
 
 export const isAnyArray: Guard<unknown[]> = (value) => Array.isArray(value);
 

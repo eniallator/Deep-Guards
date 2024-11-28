@@ -1,5 +1,5 @@
-import { GuardSchemaOf, objectKeys } from "./helpers";
-import { Guard } from "./types";
+import { GuardSchemaOf, objectKeys } from "./helpers.js";
+import { Guard } from "./types.js";
 
 export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
   if (typeof guard !== "function") {

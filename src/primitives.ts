@@ -1,4 +1,4 @@
-import { Guard } from "./types";
+import { Guard } from "./types.js";
 
 export const isUnknown: Guard<unknown> = (_value): _value is unknown => true;
 

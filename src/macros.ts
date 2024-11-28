@@ -1,7 +1,7 @@
-import { isExact } from "./compound";
-import { ObjectKey, omit } from "./helpers";
-import { isObjectOf } from "./structures";
-import { Guard } from "./types";
+import { isExact } from "./compound.js";
+import { ObjectKey, omit } from "./helpers.js";
+import { isObjectOf } from "./structures.js";
+import { Guard } from "./types.js";
 
 export function isDiscriminatedObjectOf<
   const T extends string,
