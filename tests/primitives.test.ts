@@ -7,7 +7,7 @@ import {
   isString,
   isUndefined,
   isUnknown,
-} from "../src";
+} from "../dist";
 
 describe("isUnknown", () => {
   it("succeeds for any value", () => {

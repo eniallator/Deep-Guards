@@ -12,6 +12,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
+    "buildtest": "yarn build && yarn test",
     "lint": "eslint ./src",
     "typecheck": "tsc --noEmit",
     "findissues": "yarn typecheck && yarn lint"

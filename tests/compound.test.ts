@@ -9,7 +9,7 @@ import {
   isOptional,
   isString,
   isUnionOf,
-} from "../src";
+} from "../dist";
 
 describe("isOptional", () => {
   const guard = isOptional(isString);

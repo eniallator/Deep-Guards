@@ -9,7 +9,7 @@ import {
   isString,
   isSymbol,
   isTupleOf,
-} from "../src";
+} from "../dist";
 
 describe("isAnyArray", () => {
   it("succeeds for an array", () => {

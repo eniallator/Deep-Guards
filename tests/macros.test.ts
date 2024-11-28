@@ -1,4 +1,4 @@
-import { isDiscriminatedObjectOf, isObjectOf, isString } from "../src";
+import { isDiscriminatedObjectOf, isObjectOf, isString } from "../dist";
 
 describe("isDiscriminatedObjectOf", () => {
   describe("no key override", () => {
