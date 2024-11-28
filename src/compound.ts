@@ -1,4 +1,5 @@
-import { Guard, GuardSchemaOf } from "./types";
+import { GuardSchemaOf, objectKeys } from "./helpers";
+import { Guard } from "./types";
 
 export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
   if (typeof guard !== "function") {
@@ -75,25 +76,31 @@ export function isIntersectionOf<T extends readonly unknown[]>(
     guards.every((guard) => guard(value));
 }
 
-function isEqual<T>(a: T, b: unknown): b is T {
+function objectEntriesChecks<T extends object>(a: T, b: object): b is T {
+  const aKeys = objectKeys(a);
+  const bKeySet = new Set(objectKeys(b));
   return (
-    a === b ||
-    (a != null &&
-      b != null &&
-      typeof a === "object" &&
-      typeof b === "object" &&
-      (Array.isArray(a)
-        ? Array.isArray(b) &&
-          a.length === b.length &&
-          a.every((v, i) => isEqual(v, b[i]))
-        : Object.keys(a).length === Object.keys(b).length &&
-          Object.entries(a).every(
-            ([k, v]) => k in b && isEqual(v, (b as Record<string, unknown>)[k])
-          )))
+    aKeys.length === bKeySet.size &&
+    aKeys.every((k) => bKeySet.has(k) && isExact(a[k], true)(b[k]))
   );
 }
 
 export function isExact<const T>(expected: T, deep: boolean = true): Guard<T> {
   return (value): value is T =>
-    deep ? isEqual(expected, value) : expected === value;
+    // Shallow checks
+    expected === value ||
+    (Number.isNaN(expected) && Number.isNaN(value)) ||
+    (deep &&
+      (Array.isArray(expected)
+        ? // Array checks
+          Array.isArray(value) &&
+          expected.length === value.length &&
+          expected.every((v, i) => isExact(v, true)(value[i]))
+        : // Object checks
+          expected != null &&
+          value != null &&
+          typeof expected === "object" &&
+          typeof value === "object" &&
+          !Array.isArray(value) &&
+          objectEntriesChecks(expected, value)));
 }
