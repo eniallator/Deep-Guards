@@ -186,6 +186,8 @@ NOTE: This passes for empty records
 
 This is a function which takes in a structured object, containing keys of type `string | number | symbol`, and then values which are guard functions.
 
+This also takes in a second boolean parameter for if the guard should check that the keys exactly match the structured guard object's keys. It then doesn't let any "leaky" objects through, which have extra keys. This defaults to false.
+
 As seen in the example at the start of this readme, you can do all sorts of complex nesting, as this produces a guard in the end.
 
 NOTE: This throws an error if you give it an empty object.\
@@ -197,7 +199,8 @@ These are common use cases for guarding setups, where they are made entirely out
 
 ### isDiscriminatedObjectOf
 
-This takes in a string literal `type`, and an `isObjectOf` guard. This then combines the two, where the returned guard has the signature: `Guard<{ type: T } & O>`.
+This takes in a string literal for the discriminated value, and an `isObjectOf` guard, and then an optional key specifying which key is for the discriminated union. This then combines the object with the discriminator, where the returned guard has the signature: `Guard<{ [key]: T } & O>`.
+
 This is good for use cases where you don't have a discriminator on an individual type, but then do have it on the union type. For example:
 
 ```ts

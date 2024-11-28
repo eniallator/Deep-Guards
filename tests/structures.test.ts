@@ -65,35 +65,80 @@ describe("isTupleOf", () => {
 });
 
 describe("isObjectOf", () => {
-  const barSymbol = Symbol("bar");
-  const guard = isObjectOf({
-    foo: isString,
-    [barSymbol]: isNumber,
-    baz: isObjectOf({
-      qux: isSymbol,
-    }),
+  describe("leaky", () => {
+    const barSymbol = Symbol("bar");
+    const guard = isObjectOf({
+      foo: isString,
+      [barSymbol]: isNumber,
+      baz: isObjectOf({
+        qux: isSymbol,
+      }),
+    });
+
+    it("succeeds for an object of the value", () => {
+      expect(
+        guard({
+          foo: "hello",
+          [barSymbol]: 1,
+          baz: { qux: Symbol("world!") },
+          quux: "this should not be checked",
+        })
+      ).toBe(true);
+    });
+
+    it("fails for any other value", () => {
+      expect(
+        guard({
+          foo: "hello",
+          [barSymbol]: "FAIL",
+          baz: { qux: Symbol("world!") },
+        })
+      ).toBe(false);
+      expect(guard(1)).toBe(false);
+    });
   });
 
-  it("succeeds for an object of the value", () => {
-    expect(
-      guard({
-        foo: "hello",
-        [barSymbol]: 1,
-        baz: { qux: Symbol("world!") },
-        quux: "this should not be checked",
-      })
-    ).toBe(true);
-  });
+  describe("exact keys", () => {
+    const barSymbol = Symbol("bar");
+    const guard = isObjectOf(
+      {
+        foo: isString,
+        [barSymbol]: isNumber,
+        baz: isObjectOf({
+          qux: isSymbol,
+        }),
+      },
+      true
+    );
 
-  it("fails for any other value", () => {
-    expect(
-      guard({
-        foo: "hello",
-        [barSymbol]: "FAIL",
-        baz: { qux: Symbol("world!") },
-      })
-    ).toBe(false);
-    expect(guard(1)).toBe(false);
+    it("succeeds for an object of the value", () => {
+      expect(
+        guard({
+          foo: "hello",
+          [barSymbol]: 1,
+          baz: { qux: Symbol("world!") },
+        })
+      ).toBe(true);
+    });
+
+    it("fails for any other value", () => {
+      expect(
+        guard({
+          foo: "hello",
+          [barSymbol]: 1,
+          baz: { qux: Symbol("world!") },
+          quux: "this should be checked",
+        })
+      ).toBe(false);
+      expect(
+        guard({
+          foo: "hello",
+          [barSymbol]: "FAIL",
+          baz: { qux: Symbol("world!") },
+        })
+      ).toBe(false);
+      expect(guard(1)).toBe(false);
+    });
   });
 });
 

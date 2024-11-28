@@ -1,12 +1,5 @@
-import { Guard, GuardSchemaOf } from "./types";
-
-type ObjectKey = string | number | symbol;
-
-function objectKeys<K extends ObjectKey>(obj: Record<K, unknown>): K[] {
-  return (Object.getOwnPropertyNames(obj) as K[]).concat(
-    Object.getOwnPropertySymbols(obj) as K[]
-  );
-}
+import { GuardSchemaOf, ObjectKey, objectKeys } from "./helpers";
+import { Guard } from "./types";
 
 export const isAnyArray: Guard<unknown[]> = (value) => Array.isArray(value);
 
@@ -72,12 +65,21 @@ export function isRecordOf<K extends ObjectKey, V>(
     );
 }
 
+type IsObjectOfGuard<O extends object> = O extends unknown[]
+  ? never
+  : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  {} extends O
+  ? never
+  : Guard<O>;
+
 export function isObjectOf<O extends object>(
-  schema: GuardSchemaOf<O>
-): O extends unknown[] ? never : {} extends O ? never : Guard<O> {
-  if (schema == null || typeof schema !== "object") {
+  schema: GuardSchemaOf<O>,
+  exactKeys: boolean = false
+): IsObjectOfGuard<O> {
+  const schemaUnknown: unknown = schema;
+  if (schemaUnknown == null || typeof schemaUnknown !== "object") {
     throw new TypeError(
-      `isObjectOf expects a guard schema object. Got instead: ${schema}`
+      `isObjectOf expects a guard schema object. Got instead: ${schemaUnknown}`
     );
   }
 
@@ -99,7 +101,8 @@ export function isObjectOf<O extends object>(
     value != null &&
     typeof value === "object" &&
     !Array.isArray(value) &&
+    (!exactKeys || schemaKeys.length === objectKeys(value).length) &&
     schemaKeys.every(
       (key) => key in value && schema[key]((value as O)[key])
-    )) as O extends unknown[] ? never : {} extends O ? never : Guard<O>;
+    )) as IsObjectOfGuard<O>;
 }
