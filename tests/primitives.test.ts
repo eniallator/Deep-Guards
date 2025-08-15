@@ -1,3 +1,5 @@
+import { describe, expect, it } from "@jest/globals";
+
 import {
   isBoolean,
   isFunction,
@@ -17,6 +19,7 @@ describe("isUnknown", () => {
 
 describe("isAnyFunction", () => {
   it("succeeds for a function", () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     expect(isFunction(() => {})).toBe(true);
   });
 

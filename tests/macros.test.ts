@@ -1,3 +1,5 @@
+import { describe, expect, it } from "@jest/globals";
+
 import { isDiscriminatedObjectOf, isObjectOf, isString } from "../dist";
 
 describe("isDiscriminatedObjectOf", () => {

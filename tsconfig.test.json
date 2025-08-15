@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.common.json",
-  "include": ["src"],
+  "include": ["tests"],
   "compilerOptions": {
-    "outDir": "dist",
-    "sourceRoot": "src"
+    "sourceRoot": "test"
   }
 }

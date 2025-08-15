@@ -1,4 +1,4 @@
-import { Guard } from "./types.js";
+import type { Guard } from "./types.js";
 
 export class GuardError extends Error {
   name = "GuardError";

@@ -1,4 +1,4 @@
-import { Guard } from "./types.js";
+import type { Guard } from "./types.js";
 
 export type GuardSchemaOf<O extends object> = {
   [K in keyof O]: Guard<O[K]>;
@@ -11,7 +11,7 @@ export const objectKeys = <K extends ObjectKey>(obj: Record<K, unknown>): K[] =>
     Object.getOwnPropertySymbols(obj) as K[]
   );
 
-export function omit<O extends object>(
+export function omit<O extends NonNullable<unknown>>(
   obj: O,
   key: keyof O
 ): { [K in keyof O as K extends typeof key ? never : K]: O[K] } {

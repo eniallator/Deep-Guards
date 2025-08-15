@@ -1,4 +1,4 @@
-import { Guard } from "./types.js";
+import type { Guard } from "./types.js";
 
 export const isUnknown: Guard<unknown> = (_value): _value is unknown => true;
 
@@ -18,6 +18,8 @@ export const isSymbol: Guard<symbol> = (value) => typeof value === "symbol";
 export const isBoolean: Guard<boolean> = (value) =>
   value === true || value === false;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isFunction: Guard<(...args: any[]) => unknown> = (
   value
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): value is (...args: any[]) => unknown => typeof value === "function";

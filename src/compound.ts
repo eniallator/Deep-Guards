@@ -1,5 +1,7 @@
-import { GuardSchemaOf, objectKeys } from "./helpers.js";
-import { Guard } from "./types.js";
+import { objectKeys } from "./helpers.js";
+
+import type { GuardSchemaOf } from "./helpers.js";
+import type { Guard } from "./types.js";
 
 export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
   if (typeof guard !== "function") {
@@ -22,7 +24,9 @@ export function isNullable<T>(guard: Guard<T>): Guard<T | null | undefined> {
     value == null || guard(value);
 }
 
-export function isNonNullable<T>(value: T | null | undefined): value is T {
+export function isNonNullable<T extends NonNullable<unknown>>(
+  value: T | null | undefined
+): value is T {
   return value != null;
 }
 

@@ -2,21 +2,36 @@ import typescriptParser from "@typescript-eslint/parser";
 import jslint from "@eslint/js";
 import tslint from "typescript-eslint";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
+import stylistic from "@stylistic/eslint-plugin";
 
 export default tslint.config(
   jslint.configs.recommended,
+  stylistic.configs.customize({
+    braceStyle: "1tbs",
+    commaDangle: "only-multiline",
+    indent: 2,
+    semi: true,
+  }),
   ...tslint.configs.recommended,
   ...tslint.configs.recommendedTypeChecked,
   ...tslint.configs.strictTypeChecked,
   {
     languageOptions: {
       parser: typescriptParser,
-      parserOptions: { project: "./tsconfig.json" },
+      parserOptions: { project: ["./tsconfig.json", "./tsconfig.test.json"] },
     },
 
     plugins: { tsPlugin },
 
     rules: {
+      "@typescript-eslint/consistent-type-imports": "error",
+      "@typescript-eslint/no-unnecessary-condition": "error",
+      "@stylistic/arrow-parens": "off",
+      "@stylistic/indent": "off",
+      "@stylistic/generator-star-spacing": "off",
+      "@stylistic/quotes": "off",
+      "@stylistic/operator-linebreak": "off",
+
       // CORE
       // According to https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/indent.md
       // the default indentation rule can cause eslint to report erroneous style errors.
