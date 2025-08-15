@@ -18,6 +18,6 @@ export const isSymbol: Guard<symbol> = (value) => typeof value === "symbol";
 export const isBoolean: Guard<boolean> = (value) =>
   value === true || value === false;
 
-export const isFunction: Guard<(...args: unknown[]) => unknown> = (
+export const isFunction: Guard<(...args: any[]) => unknown> = (
   value
-): value is (...args: unknown[]) => unknown => typeof value === "function";
+): value is (...args: any[]) => unknown => typeof value === "function";
