@@ -15,8 +15,10 @@
     "lint": "eslint ./src ./tests",
     "typecheck": "tsc --noEmit",
     "findissues": "yarn typecheck && yarn lint",
-    "publish": "echo publishing",
-    "prepublish": "yarn typecheck && yarn lint && yarn build && yarn test"
+    "publish": "npm publish --tolerate-republish",
+    "prepublish": "yarn typecheck && yarn lint && yarn build && yarn test",
+    "bump-and-release": "powershell -ExecutionPolicy Bypass -File ./scripts/bump-and-release.ps1",
+    "release": "powershell -ExecutionPolicy Bypass -File ./scripts/release.ps1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.3",
