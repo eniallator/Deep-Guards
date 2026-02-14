@@ -1,17 +1,17 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import {
   isExact,
+  isInstance,
   isIntersectionOf,
   isNonNullable,
   isNot,
   isNullable,
-  isNumber,
   isOneOf,
   isOptional,
-  isString,
   isUnionOf,
-} from "../dist";
+} from "./compound.ts";
+import { isNumber, isString } from "./primitives.ts";
 
 describe("isOptional", () => {
   const guard = isOptional(isString);
@@ -97,7 +97,7 @@ describe("isUnionOf", () => {
 describe("isIntersectionOf", () => {
   const guard = isIntersectionOf(
     isOneOf("foo", "bar", "baz"),
-    isExact("foo", false)
+    isExact("foo", false),
   );
 
   it("succeeds for the intersection", () => {
@@ -114,21 +114,21 @@ describe("isExact", () => {
   describe("deep", () => {
     const guard = isExact(
       { foo: "bar", hello: ["world", { key: "test" }] },
-      true
+      true,
     );
 
     it("succeeds for the exact value", () => {
       expect(guard({ foo: "bar", hello: ["world", { key: "test" }] })).toBe(
-        true
+        true,
       );
     });
 
     it("fails for any other value", () => {
       expect(guard({ foo: "baz", hello: ["world", { key: "test" }] })).toBe(
-        false
+        false,
       );
       expect(guard({ foo: "bar", hello: ["world", { key: "tester" }] })).toBe(
-        false
+        false,
       );
       expect(guard(1)).toBe(false);
     });
@@ -150,5 +150,25 @@ describe("isExact", () => {
       expect(guard("bar")).toBe(false);
       expect(guard(1)).toBe(false);
     });
+  });
+});
+
+describe("isInstance", () => {
+  class Test {
+    foo: string = "bar";
+
+    constructor(foo: string) {
+      this.foo = foo;
+    }
+  }
+  const guard = isInstance(Test);
+
+  it("succeeds for an instance", () => {
+    expect(guard(new Test("baz"))).toBe(true);
+  });
+
+  it("fails for any other type", () => {
+    expect(guard({})).toBe(false);
+    expect(guard(null)).toBe(false);
   });
 });

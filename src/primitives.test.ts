@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import {
   isBoolean,
@@ -9,7 +9,7 @@ import {
   isString,
   isUndefined,
   isUnknown,
-} from "../dist";
+} from "./primitives.ts";
 
 describe("isUnknown", () => {
   it("succeeds for any value", () => {

@@ -1,17 +1,14 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
+import { isBoolean, isNumber, isString, isSymbol } from "./primitives.ts";
 import {
   isAnyArray,
   isAnyRecord,
   isArrayOf,
-  isBoolean,
-  isNumber,
   isObjectOf,
   isRecordOf,
-  isString,
-  isSymbol,
   isTupleOf,
-} from "../dist";
+} from "./structures.ts";
 
 describe("isAnyArray", () => {
   it("succeeds for an array", () => {
@@ -84,7 +81,7 @@ describe("isObjectOf", () => {
           [barSymbol]: 1,
           baz: { qux: Symbol("world!") },
           quux: "this should not be checked",
-        })
+        }),
       ).toBe(true);
     });
 
@@ -94,7 +91,7 @@ describe("isObjectOf", () => {
           foo: "hello",
           [barSymbol]: "FAIL",
           baz: { qux: Symbol("world!") },
-        })
+        }),
       ).toBe(false);
       expect(guard(1)).toBe(false);
     });
@@ -110,7 +107,7 @@ describe("isObjectOf", () => {
           qux: isSymbol,
         }),
       },
-      true
+      true,
     );
 
     it("succeeds for an object of the value", () => {
@@ -119,7 +116,7 @@ describe("isObjectOf", () => {
           foo: "hello",
           [barSymbol]: 1,
           baz: { qux: Symbol("world!") },
-        })
+        }),
       ).toBe(true);
     });
 
@@ -130,14 +127,14 @@ describe("isObjectOf", () => {
           [barSymbol]: 1,
           baz: { qux: Symbol("world!") },
           quux: "this should be checked",
-        })
+        }),
       ).toBe(false);
       expect(
         guard({
           foo: "hello",
           [barSymbol]: "FAIL",
           baz: { qux: Symbol("world!") },
-        })
+        }),
       ).toBe(false);
       expect(guard(1)).toBe(false);
     });

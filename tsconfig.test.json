@@ -1,7 +1,4 @@
 {
   "extends": "./tsconfig.common.json",
-  "include": ["tests"],
-  "compilerOptions": {
-    "sourceRoot": "test"
-  }
+  "include": ["**/*.test.ts"]
 }

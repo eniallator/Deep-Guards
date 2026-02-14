@@ -6,14 +6,14 @@ import type { Guard } from "./types.js";
 export const isAnyArray: Guard<unknown[]> = (value) => Array.isArray(value);
 
 export const isAnyRecord: Guard<Record<ObjectKey, unknown>> = (
-  value
+  value,
 ): value is Record<ObjectKey, unknown> =>
   value != null && typeof value === "object" && !Array.isArray(value);
 
 export function isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
   if (typeof guard !== "function") {
     throw new TypeError(
-      `isArrayOf expects a guard parameter. Got instead: ${guard}`
+      `isArrayOf expects a guard parameter. Got instead: ${guard}`,
     );
   }
 
@@ -26,8 +26,8 @@ export function isTupleOf<T extends readonly unknown[]>(
   if (tupleGuards.some((guard) => typeof guard !== "function")) {
     throw new TypeError(
       `isTupleOf expects guard parameters. Got instead: ${JSON.stringify(
-        tupleGuards
-      )}`
+        tupleGuards,
+      )}`,
     );
   }
 
@@ -38,23 +38,23 @@ export function isTupleOf<T extends readonly unknown[]>(
 }
 
 export function isRecordOf<K extends ObjectKey>(
-  keyGuard: Guard<K>
+  keyGuard: Guard<K>,
 ): Guard<Record<K, unknown>>;
 export function isRecordOf<K extends ObjectKey, V>(
   keyGuard: Guard<K>,
-  valueGuard: Guard<V>
+  valueGuard: Guard<V>,
 ): Guard<Record<K, V>>;
 export function isRecordOf<K extends ObjectKey, V>(
   keyGuard: Guard<K>,
-  valueGuard?: Guard<V>
+  valueGuard?: Guard<V>,
 ): Guard<Record<K, V>> {
   if (typeof keyGuard !== "function") {
     throw new TypeError(
-      `isRecordOf keyGuard expects a guard parameter. Got instead: ${keyGuard}`
+      `isRecordOf keyGuard expects a guard parameter. Got instead: ${keyGuard}`,
     );
   } else if (valueGuard != null && typeof valueGuard !== "function") {
     throw new TypeError(
-      `isRecordOf valueGuard expects an optional guard parameter. Got instead: ${valueGuard}`
+      `isRecordOf valueGuard expects an optional guard parameter. Got instead: ${valueGuard}`,
     );
   }
 
@@ -63,25 +63,25 @@ export function isRecordOf<K extends ObjectKey, V>(
     typeof value === "object" &&
     !Array.isArray(value) &&
     objectKeys(value).every(
-      (key) => keyGuard(key) && (valueGuard?.(value[key]) ?? true)
+      (key) => keyGuard(key) && (valueGuard?.(value[key]) ?? true),
     );
 }
 
 type IsObjectOfGuard<O extends object> = O extends unknown[]
   ? never
   : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  {} extends O
-  ? never
-  : Guard<O>;
+    {} extends O
+    ? never
+    : Guard<O>;
 
 export function isObjectOf<O extends object>(
   schema: GuardSchemaOf<O>,
-  exactKeys: boolean = false
+  exactKeys: boolean = false,
 ): IsObjectOfGuard<O> {
   const schemaUnknown: unknown = schema;
   if (schemaUnknown == null || typeof schemaUnknown !== "object") {
     throw new TypeError(
-      `isObjectOf expects a guard schema object. Got instead: ${schemaUnknown}`
+      `isObjectOf expects a guard schema object. Got instead: ${schemaUnknown}`,
     );
   }
 
@@ -92,8 +92,8 @@ export function isObjectOf<O extends object>(
   ) {
     throw new TypeError(
       `isObjectOf expects a guard schema object. Got instead ${JSON.stringify(
-        schema
-      )}`
+        schema,
+      )}`,
     );
   } else if (schemaKeys.length === 0) {
     throw new Error("isObjectOf received an empty schema");
@@ -105,6 +105,6 @@ export function isObjectOf<O extends object>(
     !Array.isArray(value) &&
     (!exactKeys || schemaKeys.length === objectKeys(value).length) &&
     schemaKeys.every(
-      (key) => key in value && schema[key]((value as O)[key])
+      (key) => key in value && schema[key]((value as O)[key]),
     )) as IsObjectOfGuard<O>;
 }

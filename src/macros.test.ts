@@ -1,12 +1,14 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
-import { isDiscriminatedObjectOf, isObjectOf, isString } from "../dist";
+import { isDiscriminatedObjectOf } from "./macros.ts";
+import { isString } from "./primitives.ts";
+import { isObjectOf } from "./structures.ts";
 
 describe("isDiscriminatedObjectOf", () => {
   describe("no key override", () => {
     const guard = isDiscriminatedObjectOf(
       "foo",
-      isObjectOf({ bar: isString }, true)
+      isObjectOf({ bar: isString }, true),
     );
 
     it("succeeds for an object of the value", () => {
@@ -24,7 +26,7 @@ describe("isDiscriminatedObjectOf", () => {
     const guard = isDiscriminatedObjectOf(
       "foo",
       isObjectOf({ bar: isString }, true),
-      "test"
+      "test",
     );
 
     it("succeeds for an object of the value", () => {

@@ -7,20 +7,20 @@ import type { Guard } from "./types.js";
 
 export function isDiscriminatedObjectOf<
   const T extends string,
-  O extends object
+  O extends object,
 >(value: T, guard: Guard<O>): Guard<{ type: T } & O>;
 export function isDiscriminatedObjectOf<
   const T extends string,
   O extends object,
-  const K extends ObjectKey
+  const K extends ObjectKey,
 >(value: T, guard: Guard<O>, key: K): Guard<{ [S in K]: T } & O>;
 export function isDiscriminatedObjectOf<
   const T extends string,
-  O extends object
+  O extends object,
 >(
   value: T,
   guard: Guard<O>,
-  key: ObjectKey = "type"
+  key: ObjectKey = "type",
 ): Guard<Record<ObjectKey, T> & O> {
   const discriminatorGuard = isObjectOf({ [key]: isExact(value) }) as Guard<
     Record<ObjectKey, T>

@@ -6,7 +6,7 @@ import type { Guard } from "./types.js";
 export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
   if (typeof guard !== "function") {
     throw new TypeError(
-      `isOptional expects a guard parameter. Got instead: ${guard}`
+      `isOptional expects a guard parameter. Got instead: ${guard}`,
     );
   }
 
@@ -16,7 +16,7 @@ export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
 export function isNullable<T>(guard: Guard<T>): Guard<T | null | undefined> {
   if (typeof guard !== "function") {
     throw new TypeError(
-      `isNullable expects a guard parameter. Got instead: ${guard}`
+      `isNullable expects a guard parameter. Got instead: ${guard}`,
     );
   }
 
@@ -25,7 +25,7 @@ export function isNullable<T>(guard: Guard<T>): Guard<T | null | undefined> {
 }
 
 export function isNonNullable<T extends NonNullable<unknown>>(
-  value: T | null | undefined
+  value: T | null | undefined,
 ): value is T {
   return value != null;
 }
@@ -33,7 +33,7 @@ export function isNonNullable<T extends NonNullable<unknown>>(
 export function isNot<const N>(guard: Guard<N>) {
   if (typeof guard !== "function") {
     throw new TypeError(
-      `isNot expects a guard parameter. Got instead: ${guard}`
+      `isNot expects a guard parameter. Got instead: ${guard}`,
     );
   }
 
@@ -41,7 +41,7 @@ export function isNot<const N>(guard: Guard<N>) {
 }
 
 export function isOneOf<
-  const T extends (string | number | boolean | symbol | null | undefined)[]
+  const T extends (string | number | boolean | symbol | null | undefined)[],
 >(...values: T): Guard<T[number]> {
   const valueSet = new Set(values);
   return (value) => (valueSet.has as Guard<T[number]>)(value);
@@ -52,7 +52,7 @@ export function isUnionOf<T extends readonly unknown[]>(
 ): Guard<T[number]> {
   if (guards.every((guard) => typeof guard !== "function")) {
     throw new TypeError(
-      `isUnionOf expects N guard parameters. Got instead: ${guards}`
+      `isUnionOf expects N guard parameters. Got instead: ${guards}`,
     );
   }
 
@@ -61,7 +61,7 @@ export function isUnionOf<T extends readonly unknown[]>(
 
 type ArrayToIntersection<A extends readonly unknown[]> = A extends [
   infer T,
-  ...infer R
+  ...infer R,
 ]
   ? T & ArrayToIntersection<R>
   : unknown;
@@ -71,7 +71,7 @@ export function isIntersectionOf<T extends readonly unknown[]>(
 ): Guard<ArrayToIntersection<T>> {
   if (guards.every((guard) => typeof guard !== "function")) {
     throw new TypeError(
-      `isIntersectionOf expects N guard parameters. Got instead: ${guards}`
+      `isIntersectionOf expects N guard parameters. Got instead: ${guards}`,
     );
   }
 
@@ -106,4 +106,11 @@ export function isExact<const T>(expected: T, deep: boolean = true): Guard<T> {
           typeof value === "object" &&
           !Array.isArray(value) &&
           objectEntriesChecks(expected, value)));
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isInstance<C extends abstract new (...args: any) => unknown>(
+  cls: C,
+): Guard<InstanceType<C>> {
+  return (value): value is InstanceType<C> => value instanceof cls;
 }

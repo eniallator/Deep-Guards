@@ -7,7 +7,7 @@ export class GuardError extends Error {
 export function guardOrThrow<T>(
   value: unknown,
   guard: Guard<T>,
-  hint?: string
+  hint?: string,
 ): T {
   if (guard(value)) {
     return value;

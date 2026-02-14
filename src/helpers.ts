@@ -8,12 +8,12 @@ export type ObjectKey = string | number | symbol;
 
 export const objectKeys = <K extends ObjectKey>(obj: Record<K, unknown>): K[] =>
   (Object.getOwnPropertyNames(obj) as K[]).concat(
-    Object.getOwnPropertySymbols(obj) as K[]
+    Object.getOwnPropertySymbols(obj) as K[],
   );
 
 export function omit<O extends NonNullable<unknown>>(
   obj: O,
-  key: keyof O
+  key: keyof O,
 ): { [K in keyof O as K extends typeof key ? never : K]: O[K] } {
   const omitted = { ...obj };
   // eslint-disable-next-line @typescript-eslint/no-dynamic-delete

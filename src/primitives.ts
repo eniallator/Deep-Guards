@@ -20,6 +20,6 @@ export const isBoolean: Guard<boolean> = (value) =>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isFunction: Guard<(...args: any[]) => unknown> = (
-  value
+  value,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): value is (...args: any[]) => unknown => typeof value === "function";
