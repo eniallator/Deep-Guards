@@ -185,7 +185,6 @@ export function isExact<const T>(expected: T): Guard<T> {
     typeof value === "object" &&
     value != null &&
     !Array.isArray(value) &&
-    objectKeys(value).length === guards.length &&
     objectEntriesChecks(value);
 }
 
