@@ -1,6 +1,6 @@
 import { objectKeys } from "./helpers.js";
 
-import type { GuardSchemaOf } from "./helpers.js";
+import type { GuardSchemaOf, ObjectKey } from "./helpers.js";
 import type { Guard } from "./types.js";
 
 export function isOptional<T>(guard: Guard<T>): Guard<T | undefined> {
@@ -79,33 +79,114 @@ export function isIntersectionOf<T extends readonly unknown[]>(
     guards.every((guard) => guard(value));
 }
 
-function objectEntriesChecks<T extends object>(a: T, b: object): b is T {
-  const aKeys = objectKeys(a);
-  const bKeySet = new Set(objectKeys(b));
-  return (
-    aKeys.length === bKeySet.size &&
-    aKeys.every((k) => bKeySet.has(k) && isExact(a[k], true)(b[k]))
-  );
-}
+export function isExact<const T>(expected: T): Guard<T> {
+  // Primitive checks
+  if (typeof expected !== "object" || expected === null) {
+    // NaN check
+    if (typeof expected === "number" && Number.isNaN(expected)) {
+      return (value): value is T =>
+        typeof value === "number" && Number.isNaN(value);
+    }
+    return (value): value is T => value === expected;
+  }
 
-export function isExact<const T>(expected: T, deep: boolean = true): Guard<T> {
+  // Date checks
+  if (expected instanceof Date) {
+    return (value): value is T =>
+      value instanceof Date && expected.getTime() === value.getTime();
+  }
+
+  // RegExp checks
+  if (expected instanceof RegExp) {
+    return (value): value is T =>
+      value instanceof RegExp &&
+      expected.source === value.source &&
+      expected.flags === value.flags;
+  }
+
+  // Error checks
+  if (expected instanceof Error) {
+    return (value): value is T =>
+      value instanceof Error &&
+      expected.name === value.name &&
+      expected.message === value.message;
+  }
+
+  // Map checks
+  if (expected instanceof Map) {
+    const guards = Array.from(
+      expected
+        .entries()
+        .map(([k, v]) => [k, isExact(v)] as [string, Guard<unknown>]),
+    );
+
+    return (value): value is T =>
+      value instanceof Map &&
+      expected.size === value.size &&
+      guards.every(([k, guard]) => value.has(k) && guard(value.get(k)));
+  }
+
+  // Set checks
+  if (expected instanceof Set) {
+    const guards = new Map(
+      expected.values().map((v): [unknown, Guard<unknown>] => [v, isExact(v)]),
+    );
+
+    return (value): value is T =>
+      value instanceof Set &&
+      expected.size === value.size &&
+      value.values().every((v) => guards.get(v)?.(v));
+  }
+
+  // Typed Array checks
+  if (ArrayBuffer.isView(expected) && !(expected instanceof DataView)) {
+    const guards = Array.from(expected as unknown as ArrayLike<number>).map(
+      (v) => isExact(v),
+    );
+
+    return (value): value is T =>
+      ArrayBuffer.isView(value) &&
+      !(value instanceof DataView) &&
+      expected.constructor === value.constructor &&
+      (expected as unknown as ArrayLike<number>).length ===
+        (value as unknown as ArrayLike<number>).length &&
+      guards.every((guard, i) =>
+        guard((value as unknown as ArrayLike<number>)[i]),
+      );
+  }
+
+  // Array checks
+  if (Array.isArray(expected)) {
+    const guards = expected.map((v) => isExact(v));
+
+    return (value): value is T =>
+      Array.isArray(value) &&
+      expected.length === value.length &&
+      guards.every((guard, i) => guard(value[i]));
+  }
+
+  // Object checks
+  const guards = objectKeys(expected).map(
+    (k) => [k, isExact(expected[k])] as [ObjectKey, Guard<unknown>],
+  );
+
+  function objectEntriesChecks(value: object): value is T & object {
+    const valueKeys = new Set(objectKeys(value) as ObjectKey[]);
+    return (
+      guards.length === valueKeys.size &&
+      guards.every(
+        ([k, guard]) =>
+          valueKeys.has(k) && guard((value as Record<ObjectKey, unknown>)[k]),
+      )
+    );
+  }
+
   return (value): value is T =>
-    // Shallow checks
-    expected === value ||
-    (Number.isNaN(expected) && Number.isNaN(value)) ||
-    (deep &&
-      (Array.isArray(expected)
-        ? // Array checks
-          Array.isArray(value) &&
-          expected.length === value.length &&
-          expected.every((v, i) => isExact(v, true)(value[i]))
-        : // Object checks
-          expected != null &&
-          value != null &&
-          typeof expected === "object" &&
-          typeof value === "object" &&
-          !Array.isArray(value) &&
-          objectEntriesChecks(expected, value)));
+    typeof value === "object" &&
+    value != null &&
+    !Array.isArray(value) &&
+    objectKeys(value).length === guards.length &&
+    objectEntriesChecks(value);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -28,8 +28,10 @@ export default tslint.config(
       "@typescript-eslint/no-unnecessary-condition": "error",
       "@stylistic/arrow-parens": "off",
       "@stylistic/indent": "off",
+      "@stylistic/indent-binary-ops": "off",
       "@stylistic/generator-star-spacing": "off",
       "@stylistic/quotes": "off",
+      "@stylistic/quote-props": "off",
       "@stylistic/operator-linebreak": "off",
 
       // CORE
@@ -62,5 +64,5 @@ export default tslint.config(
         { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
       ],
     },
-  }
+  },
 );

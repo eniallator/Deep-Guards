@@ -54,6 +54,7 @@ if (vehicleGuard(value)) {
    6. [isUnionOf](#isunionof)
    7. [isIntersectionOf](#isintersectionof)
    8. [isExact](#isexact)
+   9. [isInstance](#isinstance)
 3. [Structures](#structures)
    1. [isAnyArray](#isanyarray)
    2. [isAnyRecord](#isanyrecord)
@@ -119,7 +120,7 @@ Has signature:
 
 ```ts
 function isOneOf<
-  const T extends (string | number | boolean | symbol | null | undefined)[]
+  const T extends (string | number | boolean | symbol | null | undefined)[],
 >(...values: T): Guard<(typeof values)[number]>;
 ```
 
@@ -138,10 +139,14 @@ Higher order guard. This takes in any amount of guards as arguments, and then pr
 Has signature:
 
 ```ts
-function isExact<const T>(expected: T, deep: boolean = true): Guard<T>;
+function isExact<const T>(expected: T): Guard<T>;
 ```
 
-This will pass if the incoming value exactly matches the `expected` parameter, optionally computing a deep equality.
+This will pass if the incoming value exactly matches the `expected` parameter. This memoizes checks upfront based on the expected value being passed in. So it's best to create these guards once, and then reuse the returned guard function.
+
+### isInstance
+
+Takes in a class and produces a guard to see if values are instances of that class, by using `instanceof`
 
 ## Structures
 
@@ -228,7 +233,7 @@ const carGuard = isObjectOf({
   passengers: isArrayOf(
     isObjectOf({
       name: isString,
-    })
+    }),
   ),
 });
 
@@ -240,7 +245,7 @@ const bikeGuard = isObjectOf({
 
 const vehicleGuard = isUnionOf(
   isDiscriminatedObjectOf("car", carGuard),
-  isDiscriminatedObjectOf("bike", bikeGuard)
+  isDiscriminatedObjectOf("bike", bikeGuard),
 );
 ```
 
@@ -254,7 +259,7 @@ You can then do things like:
 const cars = guardOrThrow(
   JSON.parse(readFileSync("cars.json").toString()),
   isArrayOf(isCar),
-  "Invalid car format"
+  "Invalid car format",
 );
 ```
 
@@ -272,7 +277,7 @@ const carGuard = isObjectOf({
   passengers: isArrayOf(
     isObjectOf({
       name: isString,
-    })
+    }),
   ),
 });
 
