@@ -73,8 +73,8 @@ describe("isOneOf", () => {
     expect(guard(true)).toBe(true);
   });
 
-  expect(guard(2)).toBe(false);
   it("fails any other value", () => {
+    expect(guard(2)).toBe(false);
     expect(guard(null)).toBe(false);
     expect(guard("bar")).toBe(false);
     expect(guard(false)).toBe(false);
