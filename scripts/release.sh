@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-yarn prepublish
-yarn publish --access=public
+yarn npm publish --access public
 
 VERSION=$(node -p "require('./package.json').version")
 
