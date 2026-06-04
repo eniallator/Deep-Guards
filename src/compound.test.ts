@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   isExact,
+  isFalsey,
   isInstance,
   isIntersectionOf,
   isNonNullable,
@@ -49,6 +50,27 @@ describe("isNonNullable", () => {
   it("fails any other value", () => {
     expect(isNonNullable(null)).toBe(false);
     expect(isNonNullable(undefined)).toBe(false);
+  });
+});
+
+describe("isFalsey", () => {
+  it("succeeds for all falsey values", () => {
+    expect(isFalsey(undefined)).toBe(true);
+    expect(isFalsey(false)).toBe(true);
+    expect(isFalsey(null)).toBe(true);
+    expect(isFalsey("")).toBe(true);
+    expect(isFalsey(0)).toBe(true);
+    expect(isFalsey(0n)).toBe(true);
+  });
+
+  it("fails for all truthy values", () => {
+    expect(isFalsey(true)).toBe(false);
+    expect(isFalsey(1)).toBe(false);
+    expect(isFalsey(-1)).toBe(false);
+    expect(isFalsey("foo")).toBe(false);
+    expect(isFalsey([])).toBe(false);
+    expect(isFalsey({})).toBe(false);
+    expect(isFalsey(0n + 1n)).toBe(false);
   });
 });
 

@@ -30,6 +30,11 @@ export function isNonNullable<T extends NonNullable<unknown>>(
   return value != null;
 }
 
+type Falsey = undefined | false | null | "" | 0n | 0;
+export function isFalsey(value: unknown): value is Falsey {
+  return !value;
+}
+
 export function isNot<const N>(guard: Guard<N>) {
   if (typeof guard !== "function") {
     throw new TypeError(
