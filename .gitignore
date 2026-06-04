@@ -5,3 +5,5 @@ dist
 .yarn/install-state.gz
 .pnp.cjs
 .pnp.loader.mjs
+.devcontainer/devcontainer-lock.json
+.devcontainer/devcontainer.json

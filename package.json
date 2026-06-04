@@ -2,12 +2,35 @@
   "author": "eniallator",
   "description": "Deep guarding package",
   "engines": {
-    "node": ">=25.4.0"
+    "node": ">=18"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eniallator/Deep-Guards.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eniallator/Deep-Guards/issues"
+  },
+  "keywords": [
+    "validation",
+    "typescript",
+    "guarding",
+    "guards"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "name": "deep-guards",
-  "packageManager": "yarn@4.12.0",
+  "packageManager": "yarn@4.16.0",
   "type": "module",
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/eniallator/Deep-Guards",
@@ -18,24 +41,24 @@
     "lint": "eslint ./src",
     "typecheck": "tsc --noEmit",
     "findissues": "yarn typecheck && yarn lint",
-    "publish": "npm publish --tolerate-republish",
-    "prepublish": "yarn typecheck && yarn lint && yarn build && yarn test",
-    "bump-and-release": "powershell -ExecutionPolicy Bypass -File ./scripts/bump-and-release.ps1",
-    "release": "powershell -ExecutionPolicy Bypass -File ./scripts/release.ps1"
+    "bump-and-release": "./scripts/bump-and-release.sh",
+    "release": "./scripts/release.sh",
+    "publint": "publint run",
+    "attw": "attw --pack .",
+    "check-output": "./scripts/check-output.sh",
+    "prepublish": "yarn typecheck && yarn lint && yarn build && yarn test && yarn publint && yarn check-output"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.2",
-    "@eslint/js": "^9.39.2",
-    "@stylistic/eslint-plugin": "^5.8.0",
-    "@types/eslint__js": "^9.14.0",
-    "@types/node": "^25.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.55.0",
-    "@typescript-eslint/parser": "^8.55.0",
-    "eslint": "^9.39.2",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.32.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.55.0",
-    "vitest": "^4.0.18"
+    "@arethetypeswrong/cli": "^0.18.3",
+    "@eslint/compat": "^2.1.0",
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.3",
+    "publint": "^0.3.21",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.1",
+    "vitest": "^4.1.8"
   }
 }

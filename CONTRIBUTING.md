@@ -10,11 +10,28 @@ Please review and adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all int
 
 ### Prerequisites
 
-- Node.js 25.4.0 or higher
-- Yarn 4.12.0 or higher
+- Node.js 18 or higher
+- Yarn 4.16 or higher
 - Basic familiarity with TypeScript and runtime type checking concepts
 
 ### Setting Up Your Development Environment
+
+#### Using Dev Containers (recommended)
+
+Open this repository in VS Code with the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-containers) extension installed. To get started quickly, copy the provided example devcontainer into your local config and customize it as needed.
+
+1. Copy the example file into place:
+
+   ```bash
+   cp .devcontainer/devcontainer.example.json .devcontainer/devcontainer.json
+   ```
+
+2. Edit `.devcontainer/devcontainer.json` to add any personal VS Code extensions, settings, or environment tweaks you need. Treat this file as local and do not commit it.
+3. Rebuild the container with `Dev Containers: Rebuild Container` (or `Reopen in Container`) in VS Code.
+
+> **Important:** If you change your local `.devcontainer/devcontainer.json`, rebuild the container for changes to take effect.
+
+#### Manually
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
