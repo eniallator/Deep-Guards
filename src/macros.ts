@@ -1,9 +1,7 @@
-import { isExact } from "./compound.js";
-import { omit } from "./helpers.js";
-import { isObjectOf } from "./structures.js";
-
-import type { ObjectKey } from "./helpers.js";
-import type { Guard } from "./types.js";
+import { isExact } from "./compound.ts";
+import { omit } from "./helpers.ts";
+import { isObjectOf } from "./structures.ts";
+import type { Guard } from "./types.ts";
 
 export function isDiscriminatedObjectOf<
   const T extends string,
@@ -12,7 +10,7 @@ export function isDiscriminatedObjectOf<
 export function isDiscriminatedObjectOf<
   const T extends string,
   O extends object,
-  const K extends ObjectKey,
+  const K extends PropertyKey,
 >(value: T, guard: Guard<O>, key: K): Guard<{ [S in K]: T } & O>;
 export function isDiscriminatedObjectOf<
   const T extends string,
@@ -20,11 +18,11 @@ export function isDiscriminatedObjectOf<
 >(
   value: T,
   guard: Guard<O>,
-  key: ObjectKey = "type",
-): Guard<Record<ObjectKey, T> & O> {
+  key: PropertyKey = "type"
+): Guard<Record<PropertyKey, T> & O> {
   const discriminatorGuard = isObjectOf({ [key]: isExact(value) }) as Guard<
-    Record<ObjectKey, T>
+    Record<PropertyKey, T>
   >;
-  return (value): value is Record<ObjectKey, T> & O =>
+  return (value): value is Record<PropertyKey, T> & O =>
     discriminatorGuard(value) && guard(omit(value, key));
 }

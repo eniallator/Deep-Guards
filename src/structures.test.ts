@@ -47,6 +47,11 @@ describe("isArrayOf", () => {
     expect(guard(["foo", "bar", null])).toBe(false);
     expect(guard(1)).toBe(false);
   });
+
+  it("throws for a non-function guard parameter", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isArrayOf("not a function")).toThrow(TypeError);
+  });
 });
 
 describe("isTupleOf", () => {
@@ -60,6 +65,11 @@ describe("isTupleOf", () => {
     expect(guard([1, "foo", true, null])).toBe(false);
     expect(guard([1, "foo"])).toBe(false);
     expect(guard(1)).toBe(false);
+  });
+
+  it("throws when some guard parameters are not functions", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isTupleOf(isNumber, "not a function")).toThrow(TypeError);
   });
 });
 
@@ -81,7 +91,7 @@ describe("isObjectOf", () => {
           [barSymbol]: 1,
           baz: { qux: Symbol("world!") },
           quux: "this should not be checked",
-        }),
+        })
       ).toBe(true);
     });
 
@@ -91,7 +101,7 @@ describe("isObjectOf", () => {
           foo: "hello",
           [barSymbol]: "FAIL",
           baz: { qux: Symbol("world!") },
-        }),
+        })
       ).toBe(false);
       expect(guard(1)).toBe(false);
     });
@@ -107,7 +117,7 @@ describe("isObjectOf", () => {
           qux: isSymbol,
         }),
       },
-      true,
+      true
     );
 
     it("succeeds for an object of the value", () => {
@@ -116,7 +126,7 @@ describe("isObjectOf", () => {
           foo: "hello",
           [barSymbol]: 1,
           baz: { qux: Symbol("world!") },
-        }),
+        })
       ).toBe(true);
     });
 
@@ -127,17 +137,31 @@ describe("isObjectOf", () => {
           [barSymbol]: 1,
           baz: { qux: Symbol("world!") },
           quux: "this should be checked",
-        }),
+        })
       ).toBe(false);
       expect(
         guard({
           foo: "hello",
           [barSymbol]: "FAIL",
           baz: { qux: Symbol("world!") },
-        }),
+        })
       ).toBe(false);
       expect(guard(1)).toBe(false);
     });
+  });
+
+  it("throws for a non-object schema", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isObjectOf("not an object")).toThrow(TypeError);
+  });
+
+  it("throws for a schema with a non-function value", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isObjectOf({ foo: "not a function" })).toThrow(TypeError);
+  });
+
+  it("throws for an empty schema", () => {
+    expect(() => isObjectOf({})).toThrow(Error);
   });
 });
 
@@ -154,6 +178,11 @@ describe("isRecordOf", () => {
       expect(guard({ foo: "bar", baz: 1 })).toBe(false);
       expect(guard(1)).toBe(false);
     });
+
+    it("throws for a non-function valueGuard parameter", () => {
+      // @ts-expect-error testing invalid input
+      expect(() => isRecordOf(isString, "not a function")).toThrow(TypeError);
+    });
   });
 
   describe("without valueGuard", () => {
@@ -167,6 +196,11 @@ describe("isRecordOf", () => {
     it("fails for any other value", () => {
       expect(guard({ 1: "foo", [Symbol("bar")]: 1 })).toBe(false);
       expect(guard(1)).toBe(false);
+    });
+
+    it("throws for a non-function keyGuard parameter", () => {
+      // @ts-expect-error testing invalid input
+      expect(() => isRecordOf("not a function")).toThrow(TypeError);
     });
   });
 });

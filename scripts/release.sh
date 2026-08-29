@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-yarn npm publish --access public
+pnpm publish --no-git-checks --access public --verbose
 
 VERSION=$(node -p "require('./package.json').version")
 

@@ -25,6 +25,11 @@ describe("isOptional", () => {
   it("fails for any other value", () => {
     expect(guard(null)).toBe(false);
   });
+
+  it("throws for a non-function guard parameter", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isOptional("not a function")).toThrow(TypeError);
+  });
 });
 
 describe("isNullable", () => {
@@ -38,6 +43,11 @@ describe("isNullable", () => {
 
   it("fails any other value", () => {
     expect(guard(1)).toBe(false);
+  });
+
+  it("throws for a non-function guard parameter", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isNullable("not a function")).toThrow(TypeError);
   });
 });
 
@@ -84,6 +94,11 @@ describe("isNot", () => {
   it("fails for the isNot type", () => {
     expect(guard("foo")).toBe(false);
   });
+
+  it("throws for a non-function guard parameter", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isNot("not a function")).toThrow(TypeError);
+  });
 });
 
 describe("isOneOf", () => {
@@ -114,6 +129,11 @@ describe("isUnionOf", () => {
     expect(guard(true)).toBe(false);
     expect(guard(null)).toBe(false);
   });
+
+  it("throws when no guard parameters are functions", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isUnionOf("not", "a", "function")).toThrow(TypeError);
+  });
 });
 
 describe("isIntersectionOf", () => {
@@ -127,6 +147,11 @@ describe("isIntersectionOf", () => {
     expect(guard("bar")).toBe(false);
     expect(guard(1)).toBe(false);
   });
+
+  it("throws when no guard parameters are functions", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isIntersectionOf("not", "a", "function")).toThrow(TypeError);
+  });
 });
 
 describe("isExact", () => {
@@ -135,16 +160,16 @@ describe("isExact", () => {
 
     it("succeeds for the exact value", () => {
       expect(guard({ foo: "bar", hello: ["world", { key: "test" }] })).toBe(
-        true,
+        true
       );
     });
 
     it("fails for any other value", () => {
       expect(guard({ foo: "baz", hello: ["world", { key: "test" }] })).toBe(
-        false,
+        false
       );
       expect(guard({ foo: "bar", hello: ["world", { key: "tester" }] })).toBe(
-        false,
+        false
       );
       expect(guard(1)).toBe(false);
     });
@@ -160,6 +185,19 @@ describe("isExact", () => {
     it("fails for any other value", () => {
       expect(guard("bar")).toBe(false);
       expect(guard(1)).toBe(false);
+    });
+  });
+
+  describe("NaN", () => {
+    const guard = isExact(NaN);
+
+    it("succeeds for NaN", () => {
+      expect(guard(NaN)).toBe(true);
+    });
+
+    it("fails for any other value", () => {
+      expect(guard(1)).toBe(false);
+      expect(guard("NaN")).toBe(false);
     });
   });
 

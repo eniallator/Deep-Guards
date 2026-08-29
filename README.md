@@ -233,7 +233,7 @@ const carGuard = isObjectOf({
   passengers: isArrayOf(
     isObjectOf({
       name: isString,
-    }),
+    })
   ),
 });
 
@@ -245,7 +245,7 @@ const bikeGuard = isObjectOf({
 
 const vehicleGuard = isUnionOf(
   isDiscriminatedObjectOf("car", carGuard),
-  isDiscriminatedObjectOf("bike", bikeGuard),
+  isDiscriminatedObjectOf("bike", bikeGuard)
 );
 ```
 
@@ -259,7 +259,7 @@ You can then do things like:
 const cars = guardOrThrow(
   JSON.parse(readFileSync("cars.json").toString()),
   isArrayOf(isCar),
-  "Invalid car format",
+  "Invalid car format"
 );
 ```
 
@@ -277,7 +277,7 @@ const carGuard = isObjectOf({
   passengers: isArrayOf(
     isObjectOf({
       name: isString,
-    }),
+    })
   ),
 });
 

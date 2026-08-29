@@ -8,7 +8,7 @@ describe("isDiscriminatedObjectOf", () => {
   describe("no key override", () => {
     const guard = isDiscriminatedObjectOf(
       "foo",
-      isObjectOf({ bar: isString }, true),
+      isObjectOf({ bar: isString }, true)
     );
 
     it("succeeds for an object of the value", () => {
@@ -26,7 +26,7 @@ describe("isDiscriminatedObjectOf", () => {
     const guard = isDiscriminatedObjectOf(
       "foo",
       isObjectOf({ bar: isString }, true),
-      "test",
+      "test"
     );
 
     it("succeeds for an object of the value", () => {

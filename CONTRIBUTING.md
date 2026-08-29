@@ -10,8 +10,8 @@ Please review and adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all int
 
 ### Prerequisites
 
-- Node.js 18 or higher
-- Yarn 4.16 or higher
+- Node.js 25.4.0 or higher
+- pnpm (managed via Corepack — see `packageManager` in `package.json`)
 - Basic familiarity with TypeScript and runtime type checking concepts
 
 ### Setting Up Your Development Environment
@@ -44,7 +44,7 @@ Open this repository in VS Code with the [Dev Containers](https://marketplace.vi
 3. **Install dependencies**:
 
    ```bash
-   yarn
+   pnpm install
    ```
 
 ## Development Workflow
@@ -52,7 +52,7 @@ Open this repository in VS Code with the [Dev Containers](https://marketplace.vi
 ### Building the Project
 
 ```bash
-yarn build
+pnpm build
 ```
 
 This compiles the TypeScript source to JavaScript in the `dist/` directory.
@@ -60,7 +60,7 @@ This compiles the TypeScript source to JavaScript in the `dist/` directory.
 ### Running Tests
 
 ```bash
-yarn test
+pnpm test
 ```
 
 Tests are written using Vitest. Please ensure all tests pass before submitting a pull request.
@@ -68,25 +68,37 @@ Tests are written using Vitest. Please ensure all tests pass before submitting a
 ### Type Checking
 
 ```bash
-yarn typecheck
+pnpm typecheck
 ```
 
-Verify there are no TypeScript compilation errors (tests are allowed).
+Verify there are no TypeScript compilation errors, checking both source (`tsconfig.json`) and test files
+(`tsconfig.test.json`).
 
 ### Linting
 
 ```bash
-yarn lint
+pnpm lint
 ```
 
-The project uses ESLint with TypeScript support. Address all linting issues in your changes.
+The project uses [oxlint](https://oxc.rs/docs/guide/usage/linter.html) with type-aware TypeScript rules
+(see `.oxlintrc.json`). Address all linting issues in your changes.
+
+### Formatting
+
+```bash
+pnpm format        # writes formatting fixes, including organizing imports
+pnpm format:check  # verifies formatting without writing (used in CI)
+```
+
+The project uses Prettier, plus `@ianvs/prettier-plugin-sort-imports` to sort/dedupe imports on format.
 
 ### Finding Issues
 
-The previous two steps can be combined into one, by using the following command (runs typecheck and then lint)
+The previous steps can be combined into one, by using the following command (runs typecheck, lint, and a
+format check)
 
 ```bash
-yarn findissues
+pnpm findissues
 ```
 
 ## Making Changes
@@ -123,8 +135,9 @@ Follow these guidelines when contributing:
 Example test structure:
 
 ```typescript
-import { describe, it, expect } from "vitest";
-import { isString, isObjectOf } from "./index.js";
+import { describe, expect, it } from "vitest";
+
+import { isObjectOf, isString } from "./index.ts";
 
 describe("Guard Functions", () => {
   it("should narrow types correctly", () => {
@@ -181,14 +194,15 @@ Closes #45
    - Related issues
 
 4. **Ensure all checks pass**:
-   - Tests pass (`yarn test`)
-   - Type checking passes (`yarn typecheck`)
-   - Linting passes (`yarn lint`)
+   - Tests pass (`pnpm test`)
+   - Type checking passes (`pnpm typecheck`)
+   - Linting passes (`pnpm lint`)
+   - Formatting is clean (`pnpm format:check`)
 
 Before submitting, run:
 
 ```bash
-yarn prepublish
+pnpm prepublish
 ```
 
 This runs the same checks that will run before publishing.

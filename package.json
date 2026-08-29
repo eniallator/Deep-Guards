@@ -2,7 +2,7 @@
   "author": "eniallator",
   "description": "Deep guarding package",
   "engines": {
-    "node": ">=18"
+    "node": ">=25.4.0"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,6 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "name": "deep-guards",
-  "packageManager": "yarn@4.16.0",
   "type": "module",
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/eniallator/Deep-Guards",
@@ -38,27 +37,30 @@
   "scripts": {
     "test": "vitest run --passWithNoTests",
     "build": "tsc",
-    "lint": "eslint ./src",
-    "typecheck": "tsc --noEmit",
-    "findissues": "yarn typecheck && yarn lint",
+    "lint": "oxlint src",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "findissues": "pnpm typecheck && pnpm lint && pnpm format:check",
     "bump-and-release": "./scripts/bump-and-release.sh",
     "release": "./scripts/release.sh",
     "publint": "publint run",
     "attw": "attw --pack .",
     "check-output": "./scripts/check-output.sh",
-    "prepublish": "yarn typecheck && yarn lint && yarn build && yarn test && yarn publint && yarn check-output"
+    "prepublish": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm build && pnpm test && pnpm publint && pnpm check-output"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.3",
-    "@eslint/compat": "^2.1.0",
-    "@eslint/js": "^10.0.1",
-    "@stylistic/eslint-plugin": "^5.10.0",
-    "eslint": "^10.4.1",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.8.3",
-    "publint": "^0.3.21",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.60.1",
-    "vitest": "^4.1.8"
-  }
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@types/node": "^26.4.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "happy-dom": "^20.11.6",
+    "oxlint": "^1.80.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "prettier": "^3.9.6",
+    "publint": "^0.3.24",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  },
+  "packageManager": "pnpm@11.24.0+sha512.bd27e345e976dcb0be0b7a1228217b049a817e21b1f355c90dbe7dc46671895a8bc1e6d06c24554505ea93ea0b45f489a27ec1bfbc8de6a9659fca0f16fa0000"
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-yarn version minor
-yarn release
+pnpm login
+pnpm version minor --no-git-checks
+pnpm release

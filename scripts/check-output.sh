@@ -5,8 +5,8 @@ cd "$(dirname "$0")/.."
 
 try_pack() {
     local result
+    result=$(pnpm pack --json 2>/dev/null) && echo "$result" && return 0
     result=$(npm pack --json 2>/dev/null) && echo "$result" && return 0
-    result=$(yarn npm pack --json 2>/dev/null) && echo "$result" && return 0
     result=$(corepack npm pack --json 2>/dev/null) && echo "$result" && return 0
     return 1
 }
@@ -15,7 +15,7 @@ echo 'Packing package for inspection..'
 
 pack_json=$(try_pack) || { echo "Failed to run npm pack."; exit 1; }
 
-tarball_file=$(echo "$pack_json" | jq -r '.[0].filename')
+tarball_file=$(echo "$pack_json" | jq -r 'if type == "array" then .[0] else . end | .filename')
 tarball="$PWD/$tarball_file"
 
 echo "Created tarball: $tarball_file"
