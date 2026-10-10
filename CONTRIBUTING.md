@@ -10,7 +10,7 @@ Please review and adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all int
 
 ### Prerequisites
 
-- Node.js 25.4.0 or higher
+- Node.js 22.13 or higher
 - pnpm (managed via Corepack — see `packageManager` in `package.json`)
 - Basic familiarity with TypeScript and runtime type checking concepts
 
@@ -71,8 +71,8 @@ Tests are written using Vitest. Please ensure all tests pass before submitting a
 pnpm typecheck
 ```
 
-Verify there are no TypeScript compilation errors, checking both source (`tsconfig.json`) and test files
-(`tsconfig.test.json`).
+Verify there are no TypeScript compilation errors. This typechecks both the source (`tsconfig.json`) and the
+test files (`tsconfig.test.json`).
 
 ### Linting
 
@@ -129,8 +129,9 @@ Follow these guidelines when contributing:
 
 - **Write tests** for any new functionality or bug fixes
 - **Update existing tests** if you change behavior
-- **Keep test coverage high** — aim for comprehensive coverage of guard functions
-- Test files follow the pattern `*.test.ts` and use Vitest syntax
+- **Keep full test coverage** — `pnpm test` enforces 100% statement/branch/function/line coverage, evaluated
+  per file, so every new file needs full coverage on its own
+- Test files sit next to the file they test, follow the pattern `*.test.ts`, and use Vitest syntax
 
 Example test structure:
 

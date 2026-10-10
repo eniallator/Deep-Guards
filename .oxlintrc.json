@@ -4,6 +4,7 @@
   "options": {
     "typeAware": true
   },
+  "ignorePatterns": ["scripts/**"],
   "categories": {
     "correctness": "error",
     "suspicious": "error"
@@ -25,6 +26,7 @@
     "typescript/explicit-member-accessibility": "off",
     "typescript/no-empty-interface": "off",
     "typescript/no-floating-promises": "error",
+    "typescript/no-generated-empty-object-type": "off",
     "typescript/no-inferrable-types": "off",
     "typescript/no-unnecessary-type-assertion": "error",
     "typescript/no-unsafe-type-assertion": "off",

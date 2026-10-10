@@ -11,7 +11,9 @@ export const isAnyRecord: Guard<Record<PropertyKey, unknown>> = (
 export function isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
   if (typeof guard !== "function") {
     throw new TypeError(
-      `isArrayOf expects a guard parameter. Got instead: ${JSON.stringify(guard)}`
+      `isArrayOf expects a guard parameter. Got instead: ${JSON.stringify(
+        guard
+      )}`
     );
   }
 

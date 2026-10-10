@@ -1,8 +1,8 @@
 node_modules
 bundle.js
 dist
-coverage
-
+.pnpm-store
 .devcontainer/devcontainer-lock.json
 .devcontainer/devcontainer.json
 .devcontainer/Dockerfile
+coverage

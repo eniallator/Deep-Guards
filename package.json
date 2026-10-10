@@ -2,7 +2,7 @@
   "author": "eniallator",
   "description": "Deep guarding package",
   "engines": {
-    "node": ">=25.4.0"
+    "node": ">=22"
   },
   "repository": {
     "type": "git",
@@ -42,25 +42,25 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "findissues": "pnpm typecheck && pnpm lint && pnpm format:check",
-    "bump-and-release": "./scripts/bump-and-release.sh",
-    "release": "./scripts/release.sh",
+    "bump-and-release": "node scripts/bump-and-release.mjs",
+    "release": "node scripts/release.mjs",
     "publint": "publint run",
     "attw": "attw --pack .",
-    "check-output": "./scripts/check-output.sh",
+    "check-output": "node scripts/check-output.mjs",
     "prepublish": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm build && pnpm test && pnpm publint && pnpm check-output"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-    "@types/node": "^26.4.0",
-    "@vitest/coverage-v8": "^4.1.11",
-    "happy-dom": "^20.11.6",
-    "oxlint": "^1.80.0",
-    "oxlint-tsgolint": "^7.0.2001",
-    "prettier": "^3.9.6",
-    "publint": "^0.3.24",
+    "@vitest/coverage-v8": "5.0.3",
+    "happy-dom": "^20.14.6",
+    "oxlint": "^1.87.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "prettier": "^3.9.9",
+    "publint": "^0.3.25",
+    "tar": "^7.5.22",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   },
-  "packageManager": "pnpm@11.24.0+sha512.bd27e345e976dcb0be0b7a1228217b049a817e21b1f355c90dbe7dc46671895a8bc1e6d06c24554505ea93ea0b45f489a27ec1bfbc8de6a9659fca0f16fa0000"
+  "packageManager": "pnpm@12.10.1+sha512.ba40a37eb1a370d60fea8c4cf1d364c13bcccef518e98ad2bcee954f539d38da37458e58261a3fa55e06523450ea0ffff9f497b135be41f2c15c1642bacace6c"
 }

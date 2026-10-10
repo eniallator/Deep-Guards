@@ -46,8 +46,8 @@ export function isNot<const N>(guard: Guard<N>) {
 export function isOneOf<
   const T extends (string | number | boolean | symbol | null | undefined)[],
 >(...values: T): Guard<T[number]> {
-  const valueSet = new Set(values);
-  return value => (valueSet.has as Guard<T[number]>)(value);
+  const valueSet = new Set<unknown>(values);
+  return (value): value is T[number] => valueSet.has(value);
 }
 
 export function isUnionOf<T extends readonly unknown[]>(
