@@ -1,5 +1,5 @@
 {
-  "exclude": ["dist", "**/*.test.ts"],
+  "exclude": ["dist", "scripts", "**/*.test.ts"],
   "extends": "./tsconfig.common.json",
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],

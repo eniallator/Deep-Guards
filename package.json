@@ -38,29 +38,30 @@
     "test": "vitest run --passWithNoTests",
     "build": "tsc",
     "lint": "oxlint src",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json && tsc --noEmit -p scripts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "findissues": "pnpm typecheck && pnpm lint && pnpm format:check",
-    "bump-and-release": "node scripts/bump-and-release.mjs",
-    "release": "node scripts/release.mjs",
+    "bump-and-release": "node scripts/bump-and-release.ts",
+    "release": "node scripts/release.ts",
     "publint": "publint run",
     "attw": "attw --pack .",
-    "check-output": "node scripts/check-output.mjs",
+    "check-output": "node scripts/check-output.ts",
     "prepublish": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm build && pnpm test && pnpm publint && pnpm check-output"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-    "@vitest/coverage-v8": "5.0.3",
-    "happy-dom": "^20.14.6",
-    "oxlint": "^1.87.0",
-    "oxlint-tsgolint": "^7.0.2003",
-    "prettier": "^3.9.9",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "5.0.5",
+    "happy-dom": "^21.0.4",
+    "oxlint": "^1.89.0",
+    "oxlint-tsgolint": "^7.0.2005",
+    "prettier": "^3.9.10",
     "publint": "^0.3.25",
     "tar": "^7.5.22",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   },
-  "packageManager": "pnpm@12.10.1+sha512.ba40a37eb1a370d60fea8c4cf1d364c13bcccef518e98ad2bcee954f539d38da37458e58261a3fa55e06523450ea0ffff9f497b135be41f2c15c1642bacace6c"
+  "packageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61"
 }

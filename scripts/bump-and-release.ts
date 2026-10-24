@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { runInherit } from "./lib/proc.mjs";
-import { release } from "./release.mjs";
+import { runInherit } from "./lib/proc.ts";
+import { release } from "./release.ts";
 
 runInherit("pnpm", ["login"]);
 runInherit("pnpm", ["version", "minor"]);

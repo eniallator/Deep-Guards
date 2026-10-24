@@ -2,11 +2,11 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { runInherit } from "./lib/proc.mjs";
+import { runInherit } from "./lib/proc.ts";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-export function release(version) {
+export const release = (version: string) => {
   runInherit("pnpm", ["prepublish"], { cwd: repoRoot });
   runInherit("git", ["add", "."], { cwd: repoRoot });
   runInherit("git", ["commit", "-m", `Release ${version}`], { cwd: repoRoot });
@@ -18,7 +18,7 @@ export function release(version) {
   runInherit("pnpm", ["publish", "--no-git-checks", "--access", "public"], {
     cwd: repoRoot,
   });
-}
+};
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const {

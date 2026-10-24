@@ -13,6 +13,7 @@ import {
   isUnionOf,
 } from "./compound.ts";
 import { isNumber, isString } from "./primitives.ts";
+import { optionalSymbol } from "./types.ts";
 
 describe("isOptional", () => {
   const guard = isOptional(isString);
@@ -24,6 +25,10 @@ describe("isOptional", () => {
 
   it("fails for any other value", () => {
     expect(guard(null)).toBe(false);
+  });
+
+  it("marks the guard as optional", () => {
+    expect(guard[optionalSymbol]).toBe(true);
   });
 
   it("throws for a non-function guard parameter", () => {

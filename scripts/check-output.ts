@@ -4,7 +4,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as tar from "tar";
 
-import { run } from "./lib/proc.mjs";
+import { run } from "./lib/proc.ts";
+
+interface Packed {
+  filename: string;
+}
 
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -13,7 +17,7 @@ const tryPack = () => {
     ["pnpm", ["pack", "--json"]],
     ["npm", ["pack", "--json"]],
     ["corepack", ["npm", "pack", "--json"]],
-  ]) {
+  ] as const) {
     try {
       return run(command, args, { cwd: repoRoot });
     } catch {
@@ -25,7 +29,7 @@ const tryPack = () => {
 
 console.log("Packing package for inspection..");
 
-const packed = JSON.parse(tryPack());
+const packed = JSON.parse(tryPack()) as Packed | [Packed, ...Packed[]];
 const tarballFile = Array.isArray(packed)
   ? packed[0].filename
   : packed.filename;
@@ -33,15 +37,15 @@ const tarball = resolve(repoRoot, tarballFile);
 
 console.log(`Created tarball: ${tarballFile}`);
 
-const paths = new Set();
-const pkgJsonChunks = [];
+const paths = new Set<string>();
+const pkgJsonChunks: Uint8Array[] = [];
 
 await tar.list({
   file: tarball,
   onReadEntry: entry => {
     paths.add(entry.path);
     if (entry.path === "package/package.json") {
-      entry.on("data", chunk => pkgJsonChunks.push(chunk));
+      entry.on("data", (chunk: Uint8Array) => pkgJsonChunks.push(chunk));
     }
   },
 });
@@ -56,7 +60,9 @@ for (const expected of [
   }
 }
 
-const pkg = JSON.parse(Buffer.concat(pkgJsonChunks).toString("utf8"));
+const pkg = JSON.parse(
+  Buffer.concat(pkgJsonChunks).toString("utf8")
+) as Partial<Record<"files" | "main" | "types", unknown>>;
 
 if (
   !Array.isArray(pkg.files) ||

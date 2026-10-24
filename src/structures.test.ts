@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 
+import { isOptional } from "./compound.ts";
 import { isBoolean, isNumber, isString, isSymbol } from "./primitives.ts";
 import {
   isAnyArray,
@@ -65,6 +66,40 @@ describe("isTupleOf", () => {
     expect(guard([1, "foo", true, null])).toBe(false);
     expect(guard([1, "foo"])).toBe(false);
     expect(guard(1)).toBe(false);
+  });
+
+  describe("optional trailing elements", () => {
+    const optionalGuard = isTupleOf(
+      isNumber,
+      isOptional(isString),
+      isOptional(isBoolean)
+    );
+
+    it("succeeds when trailing optional elements are missing or undefined", () => {
+      expect(optionalGuard([1])).toBe(true);
+      expect(optionalGuard([1, "foo"])).toBe(true);
+      expect(optionalGuard([1, "foo", true])).toBe(true);
+      expect(optionalGuard([1, undefined, true])).toBe(true);
+    });
+
+    it("fails for missing required elements, wrong types or extra elements", () => {
+      expect(optionalGuard([])).toBe(false);
+      expect(optionalGuard([1, 2])).toBe(false);
+      expect(optionalGuard([1, "foo", true, null])).toBe(false);
+    });
+
+    it("keeps optional guards before a required guard required", () => {
+      const midGuard = isTupleOf(isOptional(isNumber), isString);
+      expect(midGuard(["foo"])).toBe(false);
+      expect(midGuard([undefined, "foo"])).toBe(true);
+    });
+
+    it("makes trailing elements optional in the guarded type", () => {
+      const value: unknown = [1];
+      if (optionalGuard(value)) {
+        expectTypeOf(value).toEqualTypeOf<[number, string?, boolean?]>();
+      }
+    });
   });
 
   it("throws when some guard parameters are not functions", () => {
@@ -147,6 +182,52 @@ describe("isObjectOf", () => {
         })
       ).toBe(false);
       expect(guard(1)).toBe(false);
+    });
+  });
+
+  describe("optional keys", () => {
+    const barSymbol = Symbol("bar");
+    const schema = {
+      foo: isString,
+      bar: isOptional(isNumber),
+      [barSymbol]: isOptional(isString),
+    };
+    const leaky = isObjectOf(schema);
+    const exact = isObjectOf(schema, true);
+
+    it("succeeds when an optional key is missing or undefined", () => {
+      expect(leaky({ foo: "hello" })).toBe(true);
+      expect(leaky({ foo: "hello", bar: undefined })).toBe(true);
+      expect(leaky({ foo: "hello", bar: 1, [barSymbol]: "baz" })).toBe(true);
+      expect(exact({ foo: "hello" })).toBe(true);
+      expect(exact({ foo: "hello", bar: 1, [barSymbol]: "baz" })).toBe(true);
+    });
+
+    it("fails when an optional key is present with the wrong type", () => {
+      expect(leaky({ foo: "hello", bar: "FAIL" })).toBe(false);
+      expect(exact({ foo: "hello", [barSymbol]: 1 })).toBe(false);
+    });
+
+    it("still requires the non-optional keys", () => {
+      expect(leaky({ bar: 1 })).toBe(false);
+      expect(exact({ bar: 1 })).toBe(false);
+    });
+
+    it("rejects leaky keys when exact, even if optional keys are missing", () => {
+      expect(leaky({ foo: "hello", quux: true })).toBe(true);
+      expect(exact({ foo: "hello", quux: true })).toBe(false);
+      expect(exact({ foo: "hello", bar: 1, quux: true })).toBe(false);
+    });
+
+    it("makes the key optional in the guarded type", () => {
+      const value: unknown = { foo: "hello" };
+      if (leaky(value)) {
+        expectTypeOf(value).toEqualTypeOf<{
+          foo: string;
+          bar?: number;
+          [barSymbol]?: string;
+        }>();
+      }
     });
   });
 
