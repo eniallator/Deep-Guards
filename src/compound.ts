@@ -1,28 +1,31 @@
-import { objectKeys, type GuardSchemaOf } from "./helpers.ts";
-import { asOptionalGuard, type Guard, type OptionalGuard } from "./types.ts";
+import {
+  everyOf,
+  invalidParam,
+  objectKeys,
+  type NonEmptyGuards,
+} from "./helpers.ts";
+import {
+  optionalSymbol,
+  type Guard,
+  type OptionalGuard,
+  type TypeFromGuard,
+} from "./types.ts";
 
 export const isOptional = <T>(guard: Guard<T>): OptionalGuard<T> => {
   if (typeof guard !== "function") {
-    throw new TypeError(
-      `isOptional expects a guard parameter. Got instead: ${JSON.stringify(
-        guard
-      )}`
-    );
+    throw invalidParam("isOptional", "a guard parameter", guard);
   }
 
-  return asOptionalGuard(
+  return Object.assign(
     (value: unknown): value is T | undefined =>
-      value === undefined || guard(value)
+      value === undefined || guard(value),
+    { [optionalSymbol]: true as const }
   );
 };
 
 export const isNullable = <T>(guard: Guard<T>): Guard<T | null | undefined> => {
   if (typeof guard !== "function") {
-    throw new TypeError(
-      `isNullable expects a guard parameter. Got instead: ${JSON.stringify(
-        guard
-      )}`
-    );
+    throw invalidParam("isNullable", "a guard parameter", guard);
   }
 
   return (value: unknown): value is T | null | undefined =>
@@ -34,13 +37,13 @@ export const isNonNullable = <T extends NonNullable<unknown>>(
 ): value is T => value != null;
 
 type Falsey = undefined | false | null | "" | 0n | 0;
-export const isFalsey = (value: unknown): value is Falsey => !value;
+export const isFalsey: Guard<Falsey> = (value): value is Falsey => !value;
 
-export const isNot = <const N>(guard: Guard<N>) => {
+export const isNot = <const N>(
+  guard: Guard<N>
+): (<const T>(value: T | N) => value is T) => {
   if (typeof guard !== "function") {
-    throw new TypeError(
-      `isNot expects a guard parameter. Got instead: ${JSON.stringify(guard)}`
-    );
+    throw invalidParam("isNot", "a guard parameter", guard);
   }
 
   return <const T>(value: T | N): value is T => !guard(value);
@@ -55,39 +58,43 @@ export const isOneOf = <
   return (value): value is T[number] => valueSet.has(value);
 };
 
-export const isUnionOf = <T extends readonly unknown[]>(
-  ...guards: GuardSchemaOf<T>
-): Guard<T[number]> => {
-  if (guards.every(guard => typeof guard !== "function")) {
-    throw new TypeError(
-      `isUnionOf expects N guard parameters. Got instead: ${JSON.stringify(
-        guards
-      )}`
-    );
+export const isUnionOf = <const G extends NonEmptyGuards>(
+  ...guards: G
+): Guard<TypeFromGuard<G[number]>> => {
+  if (
+    guards.length === 0 ||
+    guards.some(guard => typeof guard !== "function")
+  ) {
+    throw invalidParam("isUnionOf", "one or more guard parameters", guards);
   }
 
-  return (value): value is T => guards.some(guard => guard(value));
+  return (value): value is TypeFromGuard<G[number]> =>
+    guards.some(guard => guard(value));
 };
 
-type ArrayToIntersection<A extends readonly unknown[]> = A extends [
-  infer T,
-  ...infer R,
-]
-  ? T & ArrayToIntersection<R>
-  : unknown;
+type IntersectionFromGuards<G extends readonly Guard<unknown>[]> =
+  G extends readonly [
+    infer First extends Guard<unknown>,
+    ...infer Rest extends Guard<unknown>[],
+  ]
+    ? TypeFromGuard<First> & IntersectionFromGuards<Rest>
+    : unknown;
 
-export const isIntersectionOf = <T extends readonly unknown[]>(
-  ...guards: GuardSchemaOf<T>
-): Guard<ArrayToIntersection<T>> => {
-  if (guards.every(guard => typeof guard !== "function")) {
-    throw new TypeError(
-      `isIntersectionOf expects N guard parameters. Got instead: ${JSON.stringify(
-        guards
-      )}`
+export const isIntersectionOf = <const G extends NonEmptyGuards>(
+  ...guards: G
+): Guard<IntersectionFromGuards<G>> => {
+  if (
+    guards.length === 0 ||
+    guards.some(guard => typeof guard !== "function")
+  ) {
+    throw invalidParam(
+      "isIntersectionOf",
+      "one or more guard parameters",
+      guards
     );
   }
 
-  return (value): value is ArrayToIntersection<T> =>
+  return (value): value is IntersectionFromGuards<G> =>
     guards.every(guard => guard(value));
 };
 
@@ -126,9 +133,7 @@ export const isExact = <const T>(expected: T): Guard<T> => {
 
   // Map checks
   if (expected instanceof Map) {
-    const guards = Array.from(
-      expected.entries().map(([k, v]) => [k, isExact(v)] as const)
-    );
+    const guards = Array.from(expected, ([k, v]) => [k, isExact(v)] as const);
 
     return (value): value is T =>
       value instanceof Map &&
@@ -139,13 +144,13 @@ export const isExact = <const T>(expected: T): Guard<T> => {
   // Set checks
   if (expected instanceof Set) {
     const guards = new Map(
-      expected.values().map((v): [unknown, Guard<unknown>] => [v, isExact(v)])
+      Array.from(expected, (v): [unknown, Guard<unknown>] => [v, isExact(v)])
     );
 
     return (value): value is T =>
       value instanceof Set &&
       expected.size === value.size &&
-      value.values().every(v => guards.get(v)?.(v));
+      everyOf(value, v => guards.get(v)?.(v));
   }
 
   // Typed Array checks
@@ -199,9 +204,12 @@ export const isExact = <const T>(expected: T): Guard<T> => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isInstance =
-  <C extends abstract new (...args: any) => unknown>(
-    cls: C
-  ): Guard<InstanceType<C>> =>
-  (value): value is InstanceType<C> =>
-    value instanceof cls;
+export const isInstance = <C extends abstract new (...args: any) => unknown>(
+  cls: C
+): Guard<InstanceType<C>> => {
+  if (typeof cls !== "function") {
+    throw invalidParam("isInstance", "a class parameter", cls);
+  }
+
+  return (value): value is InstanceType<C> => value instanceof cls;
+};

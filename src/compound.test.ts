@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 
 import {
   isExact,
@@ -13,7 +13,8 @@ import {
   isUnionOf,
 } from "./compound.ts";
 import { isNumber, isString } from "./primitives.ts";
-import { optionalSymbol } from "./types.ts";
+import { isObjectOf } from "./structures.ts";
+import { optionalSymbol, type TypeFromGuard } from "./types.ts";
 
 describe("isOptional", () => {
   const guard = isOptional(isString);
@@ -135,9 +136,20 @@ describe("isUnionOf", () => {
     expect(guard(null)).toBe(false);
   });
 
+  it("guards the union of the guard types", () => {
+    expectTypeOf<TypeFromGuard<typeof guard>>().toEqualTypeOf<
+      string | number
+    >();
+  });
+
   it("throws when no guard parameters are functions", () => {
     // @ts-expect-error testing invalid input
     expect(() => isUnionOf("not", "a", "function")).toThrow(TypeError);
+  });
+
+  it("throws when given no guard parameters", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isUnionOf()).toThrow(TypeError);
   });
 });
 
@@ -153,9 +165,24 @@ describe("isIntersectionOf", () => {
     expect(guard(1)).toBe(false);
   });
 
+  it("guards the intersection of the guard types", () => {
+    const objectGuard = isIntersectionOf(
+      isObjectOf({ foo: isString }),
+      isObjectOf({ bar: isNumber })
+    );
+    expectTypeOf<TypeFromGuard<typeof objectGuard>>().toEqualTypeOf<
+      { foo: string } & { bar: number }
+    >();
+  });
+
   it("throws when no guard parameters are functions", () => {
     // @ts-expect-error testing invalid input
     expect(() => isIntersectionOf("not", "a", "function")).toThrow(TypeError);
+  });
+
+  it("throws when given no guard parameters", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isIntersectionOf()).toThrow(TypeError);
   });
 });
 
@@ -315,5 +342,10 @@ describe("isInstance", () => {
   it("fails for any other type", () => {
     expect(guard({})).toBe(false);
     expect(guard(null)).toBe(false);
+  });
+
+  it("throws for a non-function class parameter", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isInstance("not a class")).toThrow(TypeError);
   });
 });

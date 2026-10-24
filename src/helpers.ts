@@ -1,7 +1,30 @@
 import type { Guard } from "./types.ts";
 
-export type GuardSchemaOf<O extends object> = {
-  [K in keyof O]: Guard<O[K]>;
+export type NonEmptyGuards = readonly [Guard<unknown>, ...Guard<unknown>[]];
+
+const stringify = (value: unknown): string => {
+  try {
+    return JSON.stringify(value) ?? String(value);
+  } catch {
+    return Object.prototype.toString.call(value);
+  }
+};
+
+export const invalidParam = (
+  name: string,
+  expected: string,
+  received: unknown
+): TypeError =>
+  new TypeError(
+    `${name} expects ${expected}. Got instead: ${stringify(received)}`
+  );
+
+export const everyOf = <T>(
+  items: Iterable<T>,
+  predicate: (item: T) => unknown
+): boolean => {
+  for (const item of items) if (!predicate(item)) return false;
+  return true;
 };
 
 export const objectKeys = <K extends PropertyKey>(

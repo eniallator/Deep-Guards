@@ -6,6 +6,7 @@ import {
   isAnyArray,
   isAnyRecord,
   isArrayOf,
+  isExactObjectOf,
   isObjectOf,
   isRecordOf,
   isTupleOf,
@@ -47,6 +48,13 @@ describe("isArrayOf", () => {
     expect(guard([1, 2, 3])).toBe(false);
     expect(guard(["foo", "bar", null])).toBe(false);
     expect(guard(1)).toBe(false);
+  });
+
+  it("guards holes in sparse arrays as undefined", () => {
+    // eslint-disable-next-line no-sparse-arrays
+    const sparse = ["foo", , "baz"];
+    expect(guard(sparse)).toBe(false);
+    expect(isArrayOf(isOptional(isString))(sparse)).toBe(true);
   });
 
   it("throws for a non-function guard parameter", () => {
@@ -106,6 +114,11 @@ describe("isTupleOf", () => {
     // @ts-expect-error testing invalid input
     expect(() => isTupleOf(isNumber, "not a function")).toThrow(TypeError);
   });
+
+  it("throws when given no guard parameters", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isTupleOf()).toThrow(TypeError);
+  });
 });
 
 describe("isObjectOf", () => {
@@ -144,16 +157,13 @@ describe("isObjectOf", () => {
 
   describe("exact keys", () => {
     const barSymbol = Symbol("bar");
-    const guard = isObjectOf(
-      {
-        foo: isString,
-        [barSymbol]: isNumber,
-        baz: isObjectOf({
-          qux: isSymbol,
-        }),
-      },
-      true
-    );
+    const guard = isExactObjectOf({
+      foo: isString,
+      [barSymbol]: isNumber,
+      baz: isObjectOf({
+        qux: isSymbol,
+      }),
+    });
 
     it("succeeds for an object of the value", () => {
       expect(
@@ -193,7 +203,7 @@ describe("isObjectOf", () => {
       [barSymbol]: isOptional(isString),
     };
     const leaky = isObjectOf(schema);
-    const exact = isObjectOf(schema, true);
+    const exact = isExactObjectOf(schema);
 
     it("succeeds when an optional key is missing or undefined", () => {
       expect(leaky({ foo: "hello" })).toBe(true);
@@ -236,13 +246,26 @@ describe("isObjectOf", () => {
     expect(() => isObjectOf("not an object")).toThrow(TypeError);
   });
 
+  it("throws for an array schema", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isObjectOf([isString])).toThrow(TypeError);
+  });
+
   it("throws for a schema with a non-function value", () => {
     // @ts-expect-error testing invalid input
     expect(() => isObjectOf({ foo: "not a function" })).toThrow(TypeError);
   });
 
   it("throws for an empty schema", () => {
-    expect(() => isObjectOf({})).toThrow(Error);
+    // @ts-expect-error testing invalid input
+    expect(() => isObjectOf({})).toThrow(TypeError);
+  });
+
+  it("names the failing guard in its errors", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isObjectOf({})).toThrow("isObjectOf");
+    // @ts-expect-error testing invalid input
+    expect(() => isExactObjectOf({})).toThrow("isExactObjectOf");
   });
 });
 

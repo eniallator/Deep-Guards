@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { isDiscriminatedObjectOf } from "./macros.ts";
 import { isString } from "./primitives.ts";
-import { isObjectOf } from "./structures.ts";
+import { isExactObjectOf, isObjectOf } from "./structures.ts";
 
 describe("isDiscriminatedObjectOf", () => {
   describe("no key override", () => {
     const guard = isDiscriminatedObjectOf(
       "foo",
-      isObjectOf({ bar: isString }, true)
+      isExactObjectOf({ bar: isString })
     );
 
     it("succeeds for an object of the value", () => {
@@ -25,7 +25,7 @@ describe("isDiscriminatedObjectOf", () => {
   describe("overriding key", () => {
     const guard = isDiscriminatedObjectOf(
       "foo",
-      isObjectOf({ bar: isString }, true),
+      isExactObjectOf({ bar: isString }),
       "test"
     );
 
@@ -38,5 +38,19 @@ describe("isDiscriminatedObjectOf", () => {
       expect(guard({ bar: "baz" })).toBe(false);
       expect(guard(1)).toBe(false);
     });
+  });
+
+  it("throws for a non-function guard parameter", () => {
+    // @ts-expect-error testing invalid input
+    expect(() => isDiscriminatedObjectOf("foo", "not a function")).toThrow(
+      TypeError
+    );
+  });
+
+  it("throws for a non-property-key key parameter", () => {
+    expect(() =>
+      // @ts-expect-error testing invalid input
+      isDiscriminatedObjectOf("foo", isObjectOf({ bar: isString }), null)
+    ).toThrow(TypeError);
   });
 });

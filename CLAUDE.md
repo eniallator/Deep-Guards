@@ -74,6 +74,8 @@ behaviour, with its own test, when adding a new factory.
 
 ### Runtime floor
 
-`isExact` uses iterator helpers (`.map`/`.every` directly on Map/Set iterators), which is what makes Node 22
-the minimum supported version (`engines` in `package.json`). Avoid other newer built-ins unless the floor is
-being raised deliberately.
+`engines.node` is `>=18`, so shipped code must not use anything newer than Node 18. Notably, avoid iterator
+helpers (`.map`/`.every` directly on Map/Set/array iterators), which need Node 22: use `for...of` (see
+`everyOf` in `helpers.ts`) or `Array.from` instead. `pnpm smoke` runs the built `dist` using plain JS, and CI's
+`smoke` job does the same on Node 18 and 20, which is what backs the `engines` claim. The dev tooling (vitest,
+oxlint) needs a newer Node, but that only affects contributors.

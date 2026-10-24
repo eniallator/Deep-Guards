@@ -49,12 +49,13 @@ if (vehicleGuard(value)) {
    1. [isOptional](#isoptional)
    2. [isNullable](#isnullable)
    3. [isNonNullable](#isnonnullable)
-   4. [isNot](#isnot)
-   5. [isOneOf](#isoneof)
-   6. [isUnionOf](#isunionof)
-   7. [isIntersectionOf](#isintersectionof)
-   8. [isExact](#isexact)
-   9. [isInstance](#isinstance)
+   4. [isFalsey](#isfalsey)
+   5. [isNot](#isnot)
+   6. [isOneOf](#isoneof)
+   7. [isUnionOf](#isunionof)
+   8. [isIntersectionOf](#isintersectionof)
+   9. [isExact](#isexact)
+   10. [isInstance](#isinstance)
 3. [Structures](#structures)
    1. [isAnyArray](#isanyarray)
    2. [isAnyRecord](#isanyrecord)
@@ -62,10 +63,12 @@ if (vehicleGuard(value)) {
    4. [isTupleOf](#istupleof)
    5. [isRecordOf](#isrecordof)
    6. [isObjectOf](#isobjectof)
+   7. [isExactObjectOf](#isexactobjectof)
 4. [Macros](#macros)
    1. [isDiscriminatedObjectOf](#isdiscriminatedobjectof)
 5. [guardOrThrow](#guardorthrow)
 6. [TypeFromGuard](#typefromguard)
+7. [Conventions](#conventions)
 
 ## Terminology
 
@@ -77,6 +80,10 @@ if (vehicleGuard(value)) {
   - This is a function which takes in a guard function as a parameter, and then will produce a new guard function as a result.
 - Incoming value:
   - The value being guarded against.
+- Optional guard:
+  - A guard produced by [isOptional](#isoptional). Object and tuple guards treat these specially, see [isOptional](#isoptional).
+- Exclusion guard:
+  - A guard which narrows a known type down, like `Exclude`, rather than narrowing `unknown`. [isNot](#isnot) and [isNonNullable](#isnonnullable) are exclusion guards.
 
 ## Primitives
 
@@ -102,17 +109,42 @@ There's also compound guards, which do more complex checks than the primitives:
 
 Higher order guard. This lets the incoming value to also be equal to `undefined` as well.
 
+It returns an `OptionalGuard<T>`: a `Guard<T | undefined>` which also carries a marker property (`[optionalSymbol]: true`). [isObjectOf](#isobjectof), [isExactObjectOf](#isexactobjectof) and [isTupleOf](#istupleof) look for that marker:
+
+- In an object guard, a key whose guard is an optional guard is allowed to be missing, and the guarded type gets an optional key (`storage?: string[]`).
+- In a tuple guard, optional guards at the **end** may be missing, and the guarded type gets optional elements (`[number, string?]`). An optional guard followed by a required one stays required, as a tuple can't have a required element after an optional one.
+- Anywhere else (e.g. [isArrayOf](#isarrayof)) it is simply a guard which also accepts `undefined`.
+
+Only `isOptional` carries the marker. Guards which merely accept `undefined`, such as `isNullable(x)` or `isUnionOf(x, isUndefined)`, are still required keys. Wrap them in `isOptional` if you want the key to be omittable.
+
+```ts
+const bikeGuard = isObjectOf({
+  wheels: isExact(2),
+  storage: isOptional(isArrayOf(isString)),
+});
+
+bikeGuard({ wheels: 2 }); // true, storage is optional
+bikeGuard({ wheels: 2, storage: [1] }); // false, storage is present but wrong
+
+type Bike = TypeFromGuard<typeof bikeGuard>;
+// { wheels: 2; storage?: string[] | undefined }
+```
+
 ### isNullable
 
 Higher order guard. This lets the incoming value to also be equal to `null` or `undefined` as well.
 
 ### isNonNullable
 
-Simple guard. This will extract `null` and `undefined` from the incoming value type.
+Exclusion guard. This will extract `null` and `undefined` from the incoming value type.
+
+### isFalsey
+
+Simple guard. Passes for any falsey value: `undefined`, `null`, `false`, `""`, `0` and `0n`.
 
 ### isNot
 
-Higher order guard. This will do the inverse of the incoming guard.
+Higher order exclusion guard. This will do the inverse of the incoming guard, narrowing a value of type `T | N` down to `T` when given a guard for `N`.
 
 ### isOneOf
 
@@ -128,11 +160,11 @@ It's very useful for enumerations, where you only have a few specific values, e.
 
 ### isUnionOf
 
-Higher order guard. This takes in any amount of guards as arguments, and then produces a guard which does a union over all the incoming guards. This means that if _any_ one of the guards passes for the incoming value, then this will pass.
+Higher order guard. This takes in one or more guards as arguments, and then produces a guard which does a union over all the incoming guards. This means that if _any_ one of the guards passes for the incoming value, then this will pass.
 
 ### isIntersectionOf
 
-Higher order guard. This takes in any amount of guards as arguments, and then produces a guard which does an intersection over all the incoming guards. This means that if _every_ one of the guards passes for the incoming value, then this will pass.
+Higher order guard. This takes in one or more guards as arguments, and then produces a guard which does an intersection over all the incoming guards. This means that if _every_ one of the guards passes for the incoming value, then this will pass.
 
 ### isExact
 
@@ -146,7 +178,7 @@ This will pass if the incoming value exactly matches the `expected` parameter. T
 
 ### isInstance
 
-Takes in a class and produces a guard to see if values are instances of that class, by using `instanceof`
+Takes in a class and produces a guard to see if values are instances of that class, by using `instanceof`. This throws a `TypeError` if it's not given a class.
 
 ## Structures
 
@@ -160,15 +192,18 @@ Simple guard. Passes if the incoming value is an array.
 
 Simple guard. Passes if the incoming value is an object/record, but **not** if it's an array.
 
+NOTE: This is any non-null object that isn't an array, so class instances, `Date`, `Map` and `Set` values also pass.
+
 ### isArrayOf
 
 Higher order guard. This will pass if the incoming value is an array which contains elements which are of the type of the passed in guard function.
 
-NOTE: This passes for empty arrays
+NOTE: This passes for empty arrays\
+Holes in sparse arrays are guarded as `undefined`, so `[1, , 3]` only passes if the item guard accepts `undefined`.
 
 ### isTupleOf
 
-Higher order guard. This takes in any number of guards, and then checks that the incoming value is an array of the same size, with the guards guarding the items in the same order as they appear.
+Higher order guard. This takes in one or more guards, and then checks that the incoming value is an array of the same size, with the guards guarding the items in the same order as they appear.
 
 For example:
 
@@ -181,22 +216,46 @@ if (myTupleGuard(value)) {
 }
 ```
 
+Trailing [optional guards](#isoptional) let the incoming array be shorter, down to the number of guards up to and including the last required one:
+
+```ts
+const myGuard = isTupleOf(
+  isNumber,
+  isOptional(isString),
+  isOptional(isBoolean)
+);
+
+myGuard([1]); // true
+myGuard([1, "foo"]); // true
+myGuard([1, "foo", true]); // true
+myGuard([]); // false, the number is required
+
+type MyTuple = TypeFromGuard<typeof myGuard>;
+// [number, (string | undefined)?, (boolean | undefined)?]
+```
+
 ### isRecordOf
 
 Higher order guard. It has two guard parameters, where the first is the key guard, and then the second is a value guard which is optional. If you don't pass in a value guard, the returned guard function has `unknown`s as the value type.
 
-NOTE: This passes for empty records
+NOTE: This passes for empty records\
+Like [isAnyRecord](#isanyrecord), any non-null object that isn't an array can pass, including class instances.
 
 ### isObjectOf
 
 This is a function which takes in a structured object, containing keys of type `string | number | symbol`, and then values which are guard functions.
 
-This also takes in a second boolean parameter for if the guard should check that the keys exactly match the structured guard object's keys. It then doesn't let any "leaky" objects through, which have extra keys. This defaults to false.
-
 As seen in the example at the start of this readme, you can do all sorts of complex nesting, as this produces a guard in the end.
 
-NOTE: This throws an error if you give it an empty object.\
-It will also accept an object which contains keys which are not specified.
+Keys whose guard is an [optional guard](#isoptional) are allowed to be missing, and are optional keys in the guarded type.
+
+NOTE: Passing an empty schema (or an array) is a compile error, and throws a `TypeError` at runtime.\
+It will accept an object which contains keys which are not specified, use [isExactObjectOf](#isexactobjectof) to reject those.\
+A key counts as present if it's in the incoming value or its prototype chain (`key in value`), so getters defined on a class work.
+
+### isExactObjectOf
+
+The same as [isObjectOf](#isobjectof), except that the incoming value's own keys (strings and symbols) must all be in the schema. It doesn't let any "leaky" objects through, which have extra keys.
 
 ## Macros
 
@@ -283,3 +342,9 @@ const carGuard = isObjectOf({
 
 type Car = TypeFromGuard<typeof carGuard>;
 ```
+
+## Conventions
+
+- Higher order guards check their arguments when they are created, and throw a `TypeError` of the form `<function> expects <what>. Got instead: <value>` if they are misused. They never silently return a guard that can't work.
+- Guards which take guards (`isArrayOf`, `isUnionOf`, `isObjectOf`, ...) take the guards first. Functions which _apply_ a guard to a value, like `guardOrThrow`, take the value first.
+- `isUnionOf`, `isIntersectionOf` and `isTupleOf` need at least one guard, and `isObjectOf` / `isExactObjectOf` need a non-empty schema. This is enforced by the types as well as at runtime.

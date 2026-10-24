@@ -2,7 +2,7 @@
   "author": "eniallator",
   "description": "Deep guarding package",
   "engines": {
-    "node": ">=22"
+    "node": ">=18"
   },
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/eniallator/Deep-Guards",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "scripts": {
     "test": "vitest run --passWithNoTests",
     "build": "tsc",
@@ -47,7 +47,8 @@
     "publint": "publint run",
     "attw": "attw --pack .",
     "check-output": "node scripts/check-output.ts",
-    "prepublish": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm build && pnpm test && pnpm publint && pnpm check-output"
+    "smoke": "node scripts/smoke.mjs",
+    "prepublish": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm build && pnpm test && pnpm publint && pnpm check-output && pnpm smoke"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",

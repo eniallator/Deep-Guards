@@ -9,7 +9,9 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const release = (version: string) => {
   runInherit("pnpm", ["prepublish"], { cwd: repoRoot });
   runInherit("git", ["add", "."], { cwd: repoRoot });
-  runInherit("git", ["commit", "-m", `Release ${version}`], { cwd: repoRoot });
+  runInherit("git", ["commit", "--allow-empty", "-m", `Release ${version}`], {
+    cwd: repoRoot,
+  });
   runInherit("git", ["tag", "-a", version, "-m", `Release ${version}`], {
     cwd: repoRoot,
   });
